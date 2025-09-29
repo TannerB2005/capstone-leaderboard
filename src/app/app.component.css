@@ -111,7 +111,7 @@
 .row.body {
   font-size: .9rem;
   transition: background .3s;
-  border-bottom: 1px solid rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(240, 240, 240, 0.04);
 }
 .row.body:last-of-type {
   border-bottom: none;
@@ -132,7 +132,7 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   justify-content: center;
-  background: linear-gradient(180deg,#7e92ac,#18202b);
+  background: linear-gradient(180deg,#1BA3DD,#005596);
   border-right: 1px solid #22303d;
 }
 
