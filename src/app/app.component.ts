@@ -89,6 +89,26 @@ export class AppComponent {
   rank(index: number) { return index + 1; }
   trendClass(val: number) { return val > 0 ? 'up' : val < 0 ? 'down' : 'flat'; }
   formatTrend(val: number) { return (val>0?'+':'') + val.toFixed(1) + '%'; }
+
+  cycleSortField() {
+    const fields: (keyof BusinessLeaderboardEntry)[] = ['score','trend','name','category','location'];
+    const idx = fields.indexOf(this.sortField);
+    const next = fields[(idx + 1) % fields.length];
+    this.sortField = next;
+    // default direction heuristic
+    this.sortDir = (next === 'score' || next === 'trend') ? 'desc' : 'asc';
+  }
+  toggleSortDirectionOnly() {
+    this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+  }
+  handleSortInfoClick(event: MouseEvent) {
+    if (event.shiftKey) {
+      this.toggleSortDirectionOnly();
+    } else {
+      this.cycleSortField();
+    }
+  }
+  clearFilter() { this.filterText = ''; }
 }
 
 // Interface (could move to its own file later)
