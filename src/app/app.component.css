@@ -131,7 +131,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text);
+  color: white;
   font: inherit;
   text-align: left;
   padding: .85rem 1.4rem;
