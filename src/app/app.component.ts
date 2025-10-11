@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CsvService, CarrierRow, QuoteActualRow, DeliveryRow } from '../services/csvparser.service';
 
 @Component({
   selector: 'app-root',
@@ -9,11 +10,25 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'alanwire-capstone';
 
   // Baseplate interface for leaderboard entries
   // In real app, replace with model fetched from an API service
+  carriers: CarrierRow[] = [];
+  quotesActual: QuoteActualRow[] = [];
+  deliveries: DeliveryRow[] = [];
+
+  constructor(private csvService: CsvService) {}
+
+  ngOnInit() {
+    this.csvService.getCarriers().subscribe(data => this.carriers = data);
+    console.log('Carriers loaded:', this.carriers);
+    this.csvService.getQuotesActual().subscribe(data => this.quotesActual = data);
+    console.log('Quotes vs Actual loaded:', this.quotesActual);
+    this.csvService.getDeliveries().subscribe(data => this.deliveries = data);
+    console.log('Deliveries loaded:', this.deliveries);
+  }
   businesses: BusinessLeaderboardEntry[] = [
     {
       id: 'b1',
