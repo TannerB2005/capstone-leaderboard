@@ -22,12 +22,18 @@ export class AppComponent implements OnInit {
   constructor(private csvService: CsvService) {}
 
   ngOnInit() {
-    this.csvService.getCarriers().subscribe(data => this.carriers = data);
-    console.log('Carriers loaded:', this.carriers);
-    this.csvService.getQuotesActual().subscribe(data => this.quotesActual = data);
-    console.log('Quotes vs Actual loaded:', this.quotesActual);
-    this.csvService.getDeliveries().subscribe(data => this.deliveries = data);
-    console.log('Deliveries loaded:', this.deliveries);
+    this.csvService.getCarriers().subscribe(data => {
+      this.carriers = data;
+      console.log('Carriers loaded:', this.carriers.length, this.carriers[0]);
+    });
+    this.csvService.getQuotesActual().subscribe(data => {
+      this.quotesActual = data;
+      console.log('Quotes vs Actual loaded:', this.quotesActual.length, this.quotesActual[0]);
+    });
+    this.csvService.getDeliveries().subscribe(data => {
+      this.deliveries = data;
+      console.log('Deliveries loaded:', this.deliveries.length, this.deliveries[0]);
+    });
   }
   businesses: BusinessLeaderboardEntry[] = [
     {
