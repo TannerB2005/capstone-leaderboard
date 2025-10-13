@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CsvService, CarrierRow, QuoteActualRow, DeliveryRow } from '../services/csvparser.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,22 +20,106 @@ export class AppComponent implements OnInit {
   quotesActual: QuoteActualRow[] = [];
   deliveries: DeliveryRow[] = [];
 
+  scorecard = signal<CarrierScoreMetrics[]>([])
+
   constructor(private csvService: CsvService) {}
 
   ngOnInit() {
-    this.csvService.getCarriers().subscribe(data => {
-      this.carriers = data;
-      console.log('Carriers loaded:', this.carriers.length, this.carriers[0]);
-    });
-    this.csvService.getQuotesActual().subscribe(data => {
-      this.quotesActual = data;
-      console.log('Quotes vs Actual loaded:', this.quotesActual.length, this.quotesActual[0]);
-    });
-    this.csvService.getDeliveries().subscribe(data => {
-      this.deliveries = data;
-      console.log('Deliveries loaded:', this.deliveries.length, this.deliveries[0]);
+    // Load all CSVs once, then compute metrics
+    forkJoin({
+      carriers: this.csvService.getCarriers(),
+      quotes: this.csvService.getQuotesActual(),
+      deliveries: this.csvService.getDeliveries()
+    }).subscribe({
+      next: ({ carriers, quotes, deliveries }) => {
+        this.carriers = carriers;
+        this.quotesActual = quotes;
+        this.deliveries = deliveries;
+
+        const metrics = this.buildScorecard(carriers, quotes, deliveries);
+        this.scorecard.set(metrics);
+
+        console.log('Scorecard metrics (first 5):', metrics.slice(0, 5));
+      },
+      error: (err) => console.error('Failed to load CSVs', err)
     });
   }
+
+  private buildScorecard(
+    carriers: CarrierRow[],
+    quotes: QuoteActualRow[],
+    deliveries: DeliveryRow[]
+  ): CarrierScoreMetrics[] {
+    const byId = new Map<number, CarrierRow>(carriers.map(c => [c.TrnspCode, c]));
+    const agg = new Map<number, CarrierScoreMetrics>();
+
+    const get = (id: number) => {
+      if (!agg.has(id)) {
+        const c = byId.get(id);
+        agg.set(id, {
+          carrierId: id,
+          carrierName: c?.CarrierName ?? `Carrier ${id}`,
+          truckType: c?.TruckType ?? 'LTL',
+          cost: {
+            quoteCount: 0,
+            overCount: 0,
+            underCount: 0,
+            extraChargesTotal: 0,
+            underQuotedTotal: 0,
+            avgDelta: 0,
+            avgDeltaPct: 0
+          },
+          service: {
+            shipments: 0,
+            avgDeltaDays: 0,
+            lateCount: 0,
+            earlyCount: 0
+          }
+        });
+      }
+      return agg.get(id)!;
+    };
+
+    // Cost aggregates (Quote vs Amount)
+    for (const q of quotes) {
+      const m = get(q.carrier);
+      const delta = q.amount - q.quote; // + over, - under
+      const pct = q.quote > 0 ? delta / q.quote : 0;
+
+      m.cost.quoteCount++;
+      if (delta > 0) { m.cost.overCount++; m.cost.extraChargesTotal += delta; }
+      else if (delta < 0) { m.cost.underCount++; m.cost.underQuotedTotal += -delta; }
+
+      // running average (numerically stable)
+      const n = m.cost.quoteCount;
+      m.cost.avgDelta = m.cost.avgDelta + (delta - m.cost.avgDelta) / n;
+      m.cost.avgDeltaPct = m.cost.avgDeltaPct + (pct - m.cost.avgDeltaPct) / n;
+    }
+
+    // Service aggregates (Actual vs Expected days)
+    const msPerDay = 86_400_000;
+    for (const d of deliveries) {
+      const m = get(d.carrier);
+      const actualDays = (d.delivery.getTime() - d.pickup.getTime()) / msPerDay;
+      const expectedDays = (d.expected_delivery.getTime() - d.pickup.getTime()) / msPerDay;
+      const deltaDays = actualDays - expectedDays; // + late, - early
+
+      if (!Number.isFinite(deltaDays)) continue;
+
+      m.service.shipments++;
+      if (deltaDays > 0) m.service.lateCount++;
+      else if (deltaDays < 0) m.service.earlyCount++;
+
+      const n = m.service.shipments;
+      m.service.avgDeltaDays = m.service.avgDeltaDays + (deltaDays - m.service.avgDeltaDays) / n;
+    }
+
+    return Array.from(agg.values()).sort((a, b) => a.carrierId - b.carrierId);
+  }
+
+
+
+
   businesses: BusinessLeaderboardEntry[] = [
     {
       id: 'b1',
@@ -121,4 +206,25 @@ interface BusinessLeaderboardEntry {
   location: string;
   trend: number; // percent change over prior period
   updatedAt: Date;
+}
+
+interface CarrierScoreMetrics {
+  carrierId: number;
+  carrierName: string;
+  truckType: 'LTL' | 'TL';
+  cost: {
+    quoteCount: number;
+    overCount: number;
+    underCount: number;
+    extraChargesTotal: number;   // sum(amount - quote) where over
+    underQuotedTotal: number;    // sum(quote - amount) where under
+    avgDelta: number;            // average (amount - quote)
+    avgDeltaPct: number;         // average (amount - quote)/quote
+  };
+  service: {
+    shipments: number;
+    avgDeltaDays: number;        // average (actualDays - expectedDays)
+    lateCount: number;
+    earlyCount: number;
+  };
 }
