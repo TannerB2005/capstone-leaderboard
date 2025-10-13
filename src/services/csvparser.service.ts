@@ -22,6 +22,7 @@ export interface DeliveryRow {
   carrier: number;
   pickup: Date;
   delivery: Date;
+  expected_delivery: Date;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -63,7 +64,8 @@ export class CsvService {
         return (parsed.data as any[]).map(r => ({
           carrier: this.num(r['carrier']),
           pickup: this.date(r['pickup']),
-          delivery: this.date(r['delivery'])
+          delivery: this.date(r['delivery']),
+          expected_delivery: this.date(r['expected_delivery'])
         }));
       })
     );
