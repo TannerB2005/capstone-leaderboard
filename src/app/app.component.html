@@ -50,39 +50,4 @@
   </div>
   <footer class="lb-footer">Mock data for layout purposes. Replace with API integration.</footer>
   <footer><img src="footer-logo.svg" alt="Logo" /></footer>
-</div>
-<!-- 
-<div class="leaderboard-shell">
-  <header><img src="header-logo.svg" alt="Logo" /></header>
-  <header class="lb-header">
-    <h1>Business Leaderboard</h1>
-    <div class="meta">
-      <form class="filter-form" (submit)="$event.preventDefault()">
-        <label class="visually-hidden" for="filterBox">Filter</label>
-        <div class="filter-controls">
-          <input
-            id="filterBox"
-            type="text"
-            placeholder="Filter by name, category, location..."
-            [(ngModel)]="filterText"
-            name="filter"
-            aria-label="Filter businesses"
-          />
-          <button type="button" class="clear-btn" *ngIf="filterText" (click)="clearFilter()" aria-label="Clear filter">×</button>
-        </div>
-      </form>
-      <button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
-        Sorted by {{ sortField }} ({{ sortDir }})
-      </button>
-    </div>
-  </header>
-
-  <div class="table-wrapper" role="table" aria-label="Business performance leaderboard">
-    <div class="row header " role="row">
-      <div class="cell rank" role="columnheader">#</div>
-      <button class="cell name" (click)="toggleSort('name')" role="columnheader" [attr.aria-sort]="ariaSort('name')">Name</button>
-      <button class="cell category" (click)="toggleSort('category')" role="columnheader" [attr.aria-sort]="ariaSort('category')">Category</button>
-      <button class="cell location" (click)="toggleSort('location')" role="columnheader" [attr.aria-sort]="ariaSort('location')">Location</button>
-      <button class="cell score" (click)="toggleSort('score')" role="columnheader" [attr.aria-sort]="ariaSort('score')">Score</button>
-      <button class="cell trend" (click)="toggleSort('trend')" role="columnheader" [attr.aria-sort]="ariaSort('trend')">Trend</button> 
-      <div class="cell updated" role="columnheader">Updated</div>-->
+</div> <!-- .leaderboard-shell -->
