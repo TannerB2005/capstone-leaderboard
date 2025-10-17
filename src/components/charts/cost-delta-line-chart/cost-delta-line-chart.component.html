@@ -1,1 +1,10 @@
-<p>cost-delta-line-chart works!</p>
+<h3>Cost Delta (Quoted vs Charged)</h3>
+<google-chart
+  [type]="'LineChart'"
+  [data]="data()"
+  [columns]="columns"
+  [options]="options">
+</google-chart>
+<p class="note">
+  Avg Δ $ is mean(amount - quote). Avg Δ % is mean((amount - quote)/quote).
+</p>

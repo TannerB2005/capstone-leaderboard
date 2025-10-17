@@ -1,11 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { GoogleChartsModule } from 'angular-google-charts';
+import { ScorecardStore } from '../../../stores/scorecard.store';
 
 @Component({
-  selector: 'app-cost-delta-line-chart',
-  imports: [],
+  selector: 'cost-delta-line-chart',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './cost-delta-line-chart.component.html',
   styleUrl: './cost-delta-line-chart.component.css'
 })
 export class CostDeltaLineChartComponent {
-
+  constructor(private store: ScorecardStore) {}
+  columns = ['Date', 'Avg Δ $', 'Avg Δ %'];
+  data = computed(() => this.store.costDeltaDailySeries());
+  options = {
+    legend: { position: 'bottom' },
+    series: {
+      0: { targetAxisIndex: 0, color: '#2563eb' },
+      1: { targetAxisIndex: 1, color: '#16a34a' }
+    },
+    vAxes: {
+      0: { title: 'Δ $' },
+      1: { title: 'Δ %', format: 'percent' }
+    },
+    hAxis: { title: 'Date' },
+    chartArea: { left: 60, right: 60, top: 24, bottom: 48, width: '100%', height: '70%' }
+  };
 }
