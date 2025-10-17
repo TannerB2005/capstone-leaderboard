@@ -74,6 +74,10 @@ export class ScorecardStore {
     return data;
   });
 
+  // Optional convenience lists used by templates
+  readonly ltl = computed(() => this.scorecard().filter(x => x.truckType === 'LTL'));
+  readonly tl  = computed(() => this.scorecard().filter(x => x.truckType === 'TL'));
+
 
   // 2) Service delta days per day
   // x axis: delivery date by day
