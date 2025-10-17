@@ -1,16 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { OverviewPanelComponent } from '../overview-panel/overview-panel.component';
-import { CostDeltaLineChartComponent } from '../charts/cost-delta-line-chart.component';
-import { CarrierPerformanceBarChartComponent } from '../charts/carrier-performance-bar-chart.component';
-import { ShipmentsBarChartComponent } from '../charts/shipments-bar-chart.component';
+import { CostDeltaLineChartComponent } from '../charts/cost-delta-line-chart/cost-delta-line-chart.component';
+import { ShipmentsBarChartComponent } from '../charts/shipments-bar-chart/shipments-bar-chart.component';
 import { ScorecardTableComponent } from '../scorecard-table/scorecard-table.component';
-import { ServiceDeltaLineChartComponent } from '../charts/service-delta-line-chart.component';
+import { ServiceDeltaLineChartComponent } from '../charts/service-delta-line-chart/service-delta-line-chart.component';
 
 @Component({
   selector: 'dashboard',
   standalone: true,
-  imports: [CommonModule, OverviewPanelComponent, CostDeltaLineChartComponent, CarrierPerformanceBarChartComponent, ShipmentsBarChartComponent, ScorecardTableComponent, ShipmentsBarChartComponent, ServiceDeltaLineChartComponent],
+  imports: [CommonModule, OverviewPanelComponent, CostDeltaLineChartComponent, ShipmentsBarChartComponent, ScorecardTableComponent, ShipmentsBarChartComponent, ServiceDeltaLineChartComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
