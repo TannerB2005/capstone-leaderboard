@@ -1,0 +1,34 @@
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>Carrier</th>
+      <th>Type</th>
+      <th>Quotes</th>
+      <th>Over</th>
+      <th>Under</th>
+      <th>Avg Δ $</th>
+      <th>Avg Δ %</th>
+      <th>Shipments</th>
+      <th>Avg Δ Days</th>
+    </tr>
+  </thead>
+  <tbody>
+    @if (!data || data.length === 0) {
+      <tr><td colspan="9" class="text-muted">No data</td></tr>
+    } @else {
+      @for (m of data; track m.carrierId) {
+        <tr>
+          <td>{{ m.carrierName }}</td>
+          <td>{{ m.truckType }}</td>
+          <td>{{ m.cost.quoteCount }}</td>
+          <td>{{ m.cost.overCount }}</td>
+          <td>{{ m.cost.underCount }}</td>
+          <td>{{ m.cost.avgDelta | number:'1.2-2' }}</td>
+          <td>{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</td>
+          <td>{{ m.service.shipments }}</td>
+          <td>{{ m.service.avgDeltaDays | number:'1.2-2' }}</td>
+        </tr>
+      }
+    }
+  </tbody>
+</table>
