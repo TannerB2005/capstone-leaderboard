@@ -1,17 +1,18 @@
 import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GoogleChartsModule } from 'angular-google-charts';
+import { GoogleChartsModule, ChartType } from 'angular-google-charts';
 import { ScorecardStore } from '../../../stores/scorecard.store';
 
 @Component({
   selector: 'cost-delta-line-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GoogleChartsModule],
   templateUrl: './cost-delta-line-chart.component.html',
   styleUrl: './cost-delta-line-chart.component.css'
 })
 export class CostDeltaLineChartComponent {
   constructor(private store: ScorecardStore) {}
+  chartType = ChartType.LineChart;
   columns = ['Date', 'Avg Δ $', 'Avg Δ %'];
   data = computed(() => this.store.costDeltaDailySeries());
   options = {
