@@ -13,18 +13,17 @@ import { ScorecardStore } from '../../../stores/scorecard.store';
 export class CostDeltaLineChartComponent {
   constructor(private store: ScorecardStore) {}
   chartType = ChartType.LineChart;
-  columns = ['Date', 'Avg Δ $', 'Avg Δ %'];
+  // Explicit column definitions (no header row in data)
+  columns = [
+    { type: 'date', label: 'Date' },
+    { type: 'number', label: 'Avg Δ $' },
+    { type: 'number', label: 'Avg Δ %' }
+  ];
   data = computed(() => this.store.costDeltaDailySeries());
   options = {
     legend: { position: 'bottom' },
-    series: {
-      0: { targetAxisIndex: 0, color: '#2563eb' },
-      1: { targetAxisIndex: 1, color: '#16a34a' }
-    },
-    vAxes: {
-      0: { title: 'Δ $' },
-      1: { title: 'Δ %', format: 'percent' }
-    },
+    series: { 0: { targetAxisIndex: 0, color: '#2563eb' }, 1: { targetAxisIndex: 1, color: '#16a34a' } },
+    vAxes: { 0: { title: 'Δ $' }, 1: { title: 'Δ %', format: 'percent' } },
     hAxis: { title: 'Date' },
     chartArea: { left: 60, right: 60, top: 24, bottom: 48, width: '100%', height: '70%' }
   };

@@ -62,7 +62,7 @@ export class ScorecardStore {
       byDay.set(day, g);
     }
     // Google Charts: first row headers; Data Types for the first column
-    const data: (string | number | Date)[][] = [['Date', 'Avg Δ $', 'Avg Δ %']];
+    const data: (Date | number )[][] = [];
     const sortedDays = Array.from(byDay.keys()).sort();
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
@@ -97,7 +97,7 @@ export class ScorecardStore {
       g.sum += delta; g.n += 1;
       byDay.set(day, g);
     }
-    const data: (string | number | Date)[][] = [['Date', 'Avg Δ Days']];
+    const data: (Date | number)[][] = [];
     const sortedDays = Array.from(byDay.keys()).sort();
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
@@ -113,7 +113,7 @@ export class ScorecardStore {
     const id = this.selectedCarrierId();
     if (id == null) {
       //Overview mode: shipments per carrier
-      const data: (string | number)[][] = [['Carrier', 'Shipments']];
+      const data: (string | number)[][] = [];
       for (const m of this.scorecard()) {
         data.push([m.carrierName, m.service.shipments]);
       }
@@ -126,7 +126,7 @@ export class ScorecardStore {
         const wk = this.weekKey(r.delivery);
         byWeek.set(wk, (byWeek.get(wk) ?? 0) + 1);
       }
-      const data: (string | number | Date)[][] = [['Week', 'Shipments']];
+      const data: ( Date| number)[][] = [];
       const keys = Array.from(byWeek.keys()).sort();
       for (const k of keys) data.push([new Date(k), byWeek.get(k)!]);
       return data;
