@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GoogleChartsModule } from 'angular-google-charts';
+import { GoogleChartsModule, ChartType } from 'angular-google-charts';
 import { ScorecardStore } from '../../../stores/scorecard.store';
 
 @Component({
@@ -12,6 +12,7 @@ import { ScorecardStore } from '../../../stores/scorecard.store';
 })
 export class ServiceDeltaLineChartComponent {
   constructor(private store: ScorecardStore) {}
+  chartType = ChartType.LineChart;
   data = computed(() => this.store.serviceDeltaDailySeries());
   options = {
     legend: { position: 'none' },
