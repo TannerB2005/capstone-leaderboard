@@ -139,7 +139,7 @@ export class AppComponent implements OnInit {
         // Under-quoted: charged less than quoted
         m.cost.underCount++;
         m.cost.underQuotedTotal += -delta; // add positive amount
-        // Update mean of under-credits only (running mean)
+        // Delta percent of quote (for normalization); handle zero quote case
         const kUnder = m.cost.underCount;
         m.cost.avgUnderCredit = m.cost.avgUnderCredit + ((-delta) - m.cost.avgUnderCredit) / kUnder;
       }
