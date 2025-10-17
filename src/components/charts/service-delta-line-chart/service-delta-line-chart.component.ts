@@ -13,10 +13,13 @@ import { ScorecardStore } from '../../../stores/scorecard.store';
 export class ServiceDeltaLineChartComponent {
   constructor(private store: ScorecardStore) {}
   chartType = ChartType.LineChart;
+  columns = [
+    { type: 'date', label: 'Date' },
+    { type: 'number', label: 'Avg Δ Days' }
+  ];
   data = computed(() => this.store.serviceDeltaDailySeries());
   options = {
     legend: { position: 'none' },
-    colors: ['#f59e0b'],
     hAxis: { title: 'Date' },
     vAxis: { title: 'Avg Δ Days' },
     chartArea: { left: 60, right: 20, top: 24, bottom: 48, width: '100%', height: '70%' }
