@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GoogleChartsModule, ChartType } from 'angular-google-charts';
+import { GoogleChartsModule, ChartType, Column } from 'angular-google-charts';
 import { ScorecardStore } from '../../../stores/scorecard.store';
 
 @Component({
@@ -13,7 +13,16 @@ import { ScorecardStore } from '../../../stores/scorecard.store';
 export class ShipmentsBarChartComponent {
   constructor(private store: ScorecardStore) {}
   chartType = ChartType.ColumnChart;
+
+  // Columns depend on selection: overview uses string domain; zoom uses date domain
+  columns = computed<Column[]>(() =>
+    this.store.selectedCarrierId() == null
+      ? [{ type: 'string', label: 'Carrier' }, { type: 'number', label: 'Shipments' }]
+      : [{ type: 'date', label: 'Week' }, { type: 'number', label: 'Shipments' }]
+  );
+
   data = computed(() => this.store.shipmentsSeries());
+
   options = computed(() => ({
     legend: { position: 'none' },
     hAxis: { title: this.store.selectedCarrierId() == null ? 'Carrier' : 'Week' },
