@@ -3,27 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import Papa from 'papaparse';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { CarrierRow, QuoteActualRow, DeliveryRow } from '../models/csv';
 
-export interface CarrierRow {
-  TrnspCode: number;
-  CarrierName: string;
-  TruckType: 'LTL' | 'TL';
-}
-
-export interface QuoteActualRow {
-  quoteDate: Date;
-  carrier: number;
-  weight: number;
-  quote: number;
-  amount: number;
-}
-
-export interface DeliveryRow {
-  carrier: number;
-  pickup: Date;
-  delivery: Date;
-  expected_delivery: Date;
-}
 
 @Injectable({ providedIn: 'root' })
 export class CsvService {
