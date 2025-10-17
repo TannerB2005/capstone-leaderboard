@@ -1,0 +1,47 @@
+<header class="toolbar">
+  <strong>Overview</strong>
+  <div class="spacer"></div>
+  <button [class.active]="store.selectedType() === 'ALL'" (click)="store.setType('ALL')">All</button>
+  <button [class.active]="store.selectedType() === 'LTL'" (click)="store.setType('LTL')">LTL</button>
+  <button [class.active]="store.selectedType() === 'TL'"  (click)="store.setType('TL')">TL</button>
+  @if (store.selectedCarrierId() !== null) {
+    <button class="link" (click)="store.clearSelection()">Clear selection</button>
+  }
+</header>
+
+@if (store.loading()) {
+  <p>Loading…</p>
+} @else if (store.error()) {
+  <p class="text-danger">{{ store.error() }}</p>
+} @else {
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Carrier</th>
+        <th>Type</th>
+        <th>Quotes</th>
+        <th>Over%</th>
+        <th>Avg Δ $</th>
+        <th>Avg Δ %</th>
+        <th>Shipments</th>
+        <th>Avg Δ Days</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (m of ranked(); track m.carrierId; let i = $index) {
+        <tr (click)="store.selectCarrier(m.carrierId)" [class.selected]="m.carrierId === store.selectedCarrierId()">
+          <td>{{ i + 1 }}</td>
+          <td>{{ m.carrierName }}</td>
+          <td>{{ m.truckType }}</td>
+          <td>{{ m.cost.quoteCount }}</td>
+          <td>{{ (m.cost.overRate * 100) | number:'1.0-1' }}%</td>
+          <td>{{ m.cost.avgDelta | number:'1.2-2' }}</td>
+          <td>{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</td>
+          <td>{{ m.service.shipments }}</td>
+          <td>{{ m.service.avgDeltaDays | number:'1.2-2' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

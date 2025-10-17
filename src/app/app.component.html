@@ -47,7 +47,7 @@
     </div>
 
     <div *ngIf="filteredAndSorted.length === 0" class="empty">No businesses match your filter.</div>
-    <div class="container py-3">
+    <!-- <div class="container py-3">
       <h1>Alan Wire Carrier Scorecard</h1>
 
       @if (store.loading()) {
@@ -61,8 +61,9 @@
         <h2 class="mt-4">TL</h2>
         <scorecard-table [data]="store.tl()"></scorecard-table>
       }
-    </div>
+    </div> -->
   </div>
+  <dashboard/>
   <footer class="lb-footer">Mock data for layout purposes. Replace with API integration.</footer>
   <footer><img src="footer-logo.svg" alt="Logo" /></footer>
 </div> <!-- .leaderboard-shell -->

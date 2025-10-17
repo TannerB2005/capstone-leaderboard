@@ -1,0 +1,9 @@
+.toolbar { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .spacer { flex:1; }
+    .table { width:100%; border-collapse: collapse; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: left; }
+    tr:hover { background: #fafafa; cursor: pointer; }
+    .selected { background: #eef6ff; }
+    button { padding: 4px 8px; }
+    .active { background: #2563eb; color: #fff; border: 1px solid #1d4ed8; }
+    .link { background: transparent; border: none; color: #2563eb; text-decoration: underline; }

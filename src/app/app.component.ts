@@ -1,13 +1,13 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ScorecardStore } from '../stores/scorecard.store';
-import { ScorecardTableComponent } from '../components/scorecard-table/scorecard-table.component';
+import { DashboardComponent } from '../components/dashboard/dashboard.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, DecimalPipe, ScorecardTableComponent],
+  imports: [CommonModule, FormsModule, DatePipe, DecimalPipe, DashboardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

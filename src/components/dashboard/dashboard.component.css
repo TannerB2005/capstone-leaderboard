@@ -1,0 +1,10 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(260px, 1fr) minmax(260px, 1fr);
+  gap: 12px;
+  height: calc(100vh - 32px);
+  padding: 12px;
+  box-sizing: border-box;
+}
+.pane { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px; overflow: auto; }
