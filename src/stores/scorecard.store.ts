@@ -93,30 +93,45 @@ export class ScorecardStore {
   readonly tl  = computed(() => this.scorecard().filter(x => x.truckType === 'TL'));
 
 
-  // 2) Service delta days per day
+    // 2) Service delta days per day
   // x axis: delivery date by day
-  // y axis: avg delta of days (actual - expected). Positive = late, negative = early
+  // y axis: daily totals: expected days, actual days, and delta (actual - expected)
+  // tooltip on delta point shows the average delta for that day
   readonly serviceDeltaDailySeries = computed(() => {
     const rows = this.filteredDeliveries();
-    const byDay = new Map<string, { sum: number; n: number }>();
+    const byDay = new Map<string, { sumExpected: number; sumActual: number; n: number }>();
     const dayMs = 86_400_000;
     for (const r of rows) {
-      // use delivery day as the time series on x-axis
       const day = this.dayKey(r.delivery);
       const actual = (r.delivery.getTime() - r.pickup.getTime()) / dayMs;
       const expected = (r.expected_delivery.getTime() - r.pickup.getTime()) / dayMs;
       if (!Number.isFinite(actual) || !Number.isFinite(expected)) continue;
-      const delta = actual - expected;
-      const g = byDay.get(day) ?? { sum: 0, n: 0 };
-      g.sum += delta; g.n += 1;
+
+      const g = byDay.get(day) ?? { sumExpected: 0, sumActual: 0, n: 0 };
+      g.sumExpected += expected;
+      g.sumActual += actual;
+      g.n += 1;
       byDay.set(day, g);
     }
-    const data: (Date | number)[][] = [];
+
+    type Cell = number | { v: number; f?: string };
+    const data: (Date | Cell)[][] = [];
     const sortedDays = Array.from(byDay.keys()).sort();
+
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
-      const avg = g.n ? g.sum / g.n : 0;
-      data.push([new Date(day), +avg.toFixed(3)]);
+      const sumExpected = +g.sumExpected.toFixed(2);
+      const sumActual = +g.sumActual.toFixed(2);
+      const deltaRaw = g.sumActual - g.sumExpected;
+      const delta = +deltaRaw.toFixed(2);
+      const avgDelta = g.n ? deltaRaw / g.n : 0;
+
+      data.push([
+        new Date(day),
+        sumExpected,
+        sumActual,
+        { v: delta, f: `${delta.toFixed(2)} (avg: ${avgDelta.toFixed(2)})` }
+      ]);
     }
     return data;
   });

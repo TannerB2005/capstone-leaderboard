@@ -1,8 +1,10 @@
-<h3>Service Days Delta (Actual - Expected)</h3>
+<h3>Service Days (Expected vs Actual)</h3>
 <google-chart
   [type]="chartType"
   [columns]="columns"
   [data]="data()"
   [options]="options">
 </google-chart>
-<p class="note">Avg Δ Days is mean(actualDays - expectedDays). Positive = late, negative = early.</p>
+<p class="note">
+  Shows daily totals: Expected, Actual, and Delta days. Select a Delta point to see the average delta in the tooltip.
+</p>
