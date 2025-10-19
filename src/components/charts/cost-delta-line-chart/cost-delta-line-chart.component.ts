@@ -13,18 +13,27 @@ import { ScorecardStore } from '../../../stores/scorecard.store';
 export class CostDeltaLineChartComponent {
   constructor(private store: ScorecardStore) {}
   chartType = ChartType.LineChart;
-  // Explicit column definitions (no header row in data)
+
+  // Columns define types so charts work even when there are no data rows.
   columns = [
-    { type: 'date', label: 'Date' },
-    { type: 'number', label: 'Avg Δ $' },
-    { type: 'number', label: 'Avg Δ %' }
+    { type: 'date',   label: 'Date' },
+    { type: 'number', label: 'Quote' },
+    { type: 'number', label: 'Actual' },
+    { type: 'number', label: 'Delta' }
   ];
-  data = computed(() => this.store.costDeltaDailySeries());
+
+  // Store returns a header row + data rows; pass rows only to the chart.
+  data = computed(() => this.store.costDeltaDailySeries().slice(1));
+
   options = {
     legend: { position: 'bottom' },
-    series: { 0: { targetAxisIndex: 0, color: '#2563eb' }, 1: { targetAxisIndex: 1, color: '#16a34a' } },
-    vAxes: { 0: { title: 'Δ $' }, 1: { title: 'Δ %', format: 'percent' } },
+    series: {
+      0: { color: '#2563eb' }, // Quote
+      1: { color: '#16a34a' }, // Actual
+      2: { color: '#f97316' }  // Delta
+    },
+    vAxis: { title: 'Amount ($)' },
     hAxis: { title: 'Date' },
-    chartArea: { left: 60, right: 60, top: 24, bottom: 48, width: '100%', height: '70%' }
+    chartArea: { left: 60, right: 24, top: 24, bottom: 48, width: '100%', height: '70%' }
   };
 }

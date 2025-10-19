@@ -45,31 +45,45 @@ export class ScorecardStore {
   });
 
   // Chart-ready series (Google Charts expects 2D Array with header row: [header..., ...rows])
-  // 1) Cost delta per day - line chart
+   // 1) Cost per day - line chart
   //  x axis: date
-  //  series on y axis :avg dollar delta(amount - quote) and average percent delta ((amount - quote)/quote)
+  //  y series: daily totals for quote amount, actual amount, and delta (amount - quote)
+  //  tooltip on delta point shows the average delta for that day
   readonly costDeltaDailySeries = computed(() => {
     const rows = this.filteredQuotes();
-    // group by YYYY-MM-DD for daily values
-    const byDay = new Map<string, { sumDelta: number; sumPct: number; n: number; nPct: number }>();
+
+    // group by YYYY-MM-DD for daily totals
+    const byDay = new Map<string, { sumQuote: number; sumAmount: number; n: number }>();
     for (const r of rows) {
       const day = this.dayKey(r.quoteDate);
-      const delta = r.amount - r.quote;
-      const pct = r.quote > 0 ? delta / r.quote : NaN;
-      const g = byDay.get(day) ?? { sumDelta: 0, sumPct: 0, n: 0, nPct: 0 };
-      g.sumDelta += delta; g.n += 1;
-      if (Number.isFinite(pct)) { g.sumPct += pct; g.nPct += 1; }
+      const g = byDay.get(day) ?? { sumQuote: 0, sumAmount: 0, n: 0 };
+      g.sumQuote += r.quote;
+      g.sumAmount += r.amount;
+      g.n += 1;
       byDay.set(day, g);
     }
-    // Google Charts: first row headers; Data Types for the first column
-    const data: (Date | number )[][] = [];
+
+    type Cell = number | { v: number; f?: string };
+    const data: (string | Date | Cell)[][] = [
+      ['Date', 'Quote', 'Actual', 'Delta']
+    ];
     const sortedDays = Array.from(byDay.keys()).sort();
+
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
-      const avgDelta = g.n ? g.sumDelta / g.n : 0;
-      const avgPct = g.nPct ? g.sumPct / g.nPct : 0;
-      // Use toFixed to keep readable decimals, then convert back to number
-      data.push([new Date(day), +avgDelta.toFixed(2), +avgPct.toFixed(4)]);
+      const sumQuote = +(g.sumQuote).toFixed(2);
+      const sumAmount = +(g.sumAmount).toFixed(2);
+      const deltaRaw = g.sumAmount - g.sumQuote;
+      const delta = +deltaRaw.toFixed(2);
+      const avgDelta = g.n ? deltaRaw / g.n : 0;
+
+      // Put the average in the formatted string so it shows in the tooltip for the delta series
+      data.push([
+        new Date(day),
+        sumQuote,
+        sumAmount,
+        { v: delta, f: `${delta.toFixed(2)} (avg: ${avgDelta.toFixed(2)})` }
+      ]);
     }
     return data;
   });
