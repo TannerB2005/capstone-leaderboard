@@ -45,31 +45,45 @@ export class ScorecardStore {
   });
 
   // Chart-ready series (Google Charts expects 2D Array with header row: [header..., ...rows])
-  // 1) Cost delta per day - line chart
+   // 1) Cost per day - line chart
   //  x axis: date
-  //  series on y axis :avg dollar delta(amount - quote) and average percent delta ((amount - quote)/quote)
+  //  y series: daily totals for quote amount, actual amount, and delta (amount - quote)
+  //  tooltip on delta point shows the average delta for that day
   readonly costDeltaDailySeries = computed(() => {
     const rows = this.filteredQuotes();
-    // group by YYYY-MM-DD for daily values
-    const byDay = new Map<string, { sumDelta: number; sumPct: number; n: number; nPct: number }>();
+
+    // group by YYYY-MM-DD for daily totals
+    const byDay = new Map<string, { sumQuote: number; sumAmount: number; n: number }>();
     for (const r of rows) {
       const day = this.dayKey(r.quoteDate);
-      const delta = r.amount - r.quote;
-      const pct = r.quote > 0 ? delta / r.quote : NaN;
-      const g = byDay.get(day) ?? { sumDelta: 0, sumPct: 0, n: 0, nPct: 0 };
-      g.sumDelta += delta; g.n += 1;
-      if (Number.isFinite(pct)) { g.sumPct += pct; g.nPct += 1; }
+      const g = byDay.get(day) ?? { sumQuote: 0, sumAmount: 0, n: 0 };
+      g.sumQuote += r.quote;
+      g.sumAmount += r.amount;
+      g.n += 1;
       byDay.set(day, g);
     }
-    // Google Charts: first row headers; Data Types for the first column
-    const data: (Date | number )[][] = [];
+
+    type Cell = number | { v: number; f?: string };
+    const data: (string | Date | Cell)[][] = [
+      ['Date', 'Quote', 'Actual', 'Delta']
+    ];
     const sortedDays = Array.from(byDay.keys()).sort();
+
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
-      const avgDelta = g.n ? g.sumDelta / g.n : 0;
-      const avgPct = g.nPct ? g.sumPct / g.nPct : 0;
-      // Use toFixed to keep readable decimals, then convert back to number
-      data.push([new Date(day), +avgDelta.toFixed(2), +avgPct.toFixed(4)]);
+      const sumQuote = +(g.sumQuote).toFixed(2);
+      const sumAmount = +(g.sumAmount).toFixed(2);
+      const deltaRaw = g.sumAmount - g.sumQuote;
+      const delta = +deltaRaw.toFixed(2);
+      const avgDelta = g.n ? deltaRaw / g.n : 0;
+
+      // Put the average in the formatted string so it shows in the tooltip for the delta series
+      data.push([
+        new Date(day),
+        sumQuote,
+        sumAmount,
+        { v: delta, f: `${delta.toFixed(2)} (avg: ${avgDelta.toFixed(2)})` }
+      ]);
     }
     return data;
   });
@@ -79,30 +93,45 @@ export class ScorecardStore {
   readonly tl  = computed(() => this.scorecard().filter(x => x.truckType === 'TL'));
 
 
-  // 2) Service delta days per day
+    // 2) Service delta days per day
   // x axis: delivery date by day
-  // y axis: avg delta of days (actual - expected). Positive = late, negative = early
+  // y axis: daily totals: expected days, actual days, and delta (actual - expected)
+  // tooltip on delta point shows the average delta for that day
   readonly serviceDeltaDailySeries = computed(() => {
     const rows = this.filteredDeliveries();
-    const byDay = new Map<string, { sum: number; n: number }>();
+    const byDay = new Map<string, { sumExpected: number; sumActual: number; n: number }>();
     const dayMs = 86_400_000;
     for (const r of rows) {
-      // use delivery day as the time series on x-axis
       const day = this.dayKey(r.delivery);
       const actual = (r.delivery.getTime() - r.pickup.getTime()) / dayMs;
       const expected = (r.expected_delivery.getTime() - r.pickup.getTime()) / dayMs;
       if (!Number.isFinite(actual) || !Number.isFinite(expected)) continue;
-      const delta = actual - expected;
-      const g = byDay.get(day) ?? { sum: 0, n: 0 };
-      g.sum += delta; g.n += 1;
+
+      const g = byDay.get(day) ?? { sumExpected: 0, sumActual: 0, n: 0 };
+      g.sumExpected += expected;
+      g.sumActual += actual;
+      g.n += 1;
       byDay.set(day, g);
     }
-    const data: (Date | number)[][] = [];
+
+    type Cell = number | { v: number; f?: string };
+    const data: (Date | Cell)[][] = [];
     const sortedDays = Array.from(byDay.keys()).sort();
+
     for (const day of sortedDays) {
       const g = byDay.get(day)!;
-      const avg = g.n ? g.sum / g.n : 0;
-      data.push([new Date(day), +avg.toFixed(3)]);
+      const sumExpected = +g.sumExpected.toFixed(2);
+      const sumActual = +g.sumActual.toFixed(2);
+      const deltaRaw = g.sumActual - g.sumExpected;
+      const delta = +deltaRaw.toFixed(2);
+      const avgDelta = g.n ? deltaRaw / g.n : 0;
+
+      data.push([
+        new Date(day),
+        sumExpected,
+        sumActual,
+        { v: delta, f: `${delta.toFixed(2)} (avg: ${avgDelta.toFixed(2)})` }
+      ]);
     }
     return data;
   });

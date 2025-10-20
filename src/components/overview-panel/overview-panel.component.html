@@ -1,47 +1,79 @@
-<header class="toolbar">
-  <strong>Overview</strong>
-  <div class="spacer"></div>
-  <button [class.active]="store.selectedType() === 'ALL'" (click)="store.setType('ALL')">All</button>
-  <button [class.active]="store.selectedType() === 'LTL'" (click)="store.setType('LTL')">LTL</button>
-  <button [class.active]="store.selectedType() === 'TL'"  (click)="store.setType('TL')">TL</button>
-  @if (store.selectedCarrierId() !== null) {
-    <button class="link" (click)="store.clearSelection()">Clear selection</button>
-  }
+<header class="lb-header">
+  <h2>Carrier Overview</h2>
+  <div class="meta">
+    <form class="filter-form" (submit)="$event.preventDefault()">
+      <label class="visually-hidden" for="ovFilterBox">Filter</label>
+      <div class="filter-controls">
+        <input
+          id="ovFilterBox"
+          type="text"
+          placeholder="Filter by carrier or type..."
+          [(ngModel)]="filterText"
+          name="filter"
+          aria-label="Filter carriers"
+        />
+        <button type="button" class="clear-btn" *ngIf="filterText" (click)="clearFilter()" aria-label="Clear filter">×</button>
+      </div>
+    </form>
+
+    <button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
+      Sorted by {{ sortField }} ({{ sortDir }})
+    </button>
+
+    <div class="spacer"></div>
+
+    <div class="pager">
+      <label>
+        Rows:
+        <select [ngModel]="pageSize" (ngModelChange)="setPageSize($event)">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+      <button type="button" (click)="firstPage()" [disabled]="pageIndex === 0" aria-label="First page">«</button>
+      <button type="button" (click)="prevPage()" [disabled]="pageIndex === 0" aria-label="Previous page">‹</button>
+      <span class="page-info">{{ pageDisplayStart }}–{{ pageDisplayEnd }} / {{ rows.length }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="pageIndex >= totalPages - 1" aria-label="Next page">›</button>
+      <button type="button" (click)="lastPage()" [disabled]="pageIndex >= totalPages - 1" aria-label="Last page">»</button>
+    </div>
+
+    <button [class.active]="store.selectedType() === 'ALL'" (click)="store.setType('ALL')">All</button>
+    <button [class.active]="store.selectedType() === 'LTL'" (click)="store.setType('LTL')">LTL</button>
+    <button [class.active]="store.selectedType() === 'TL'"  (click)="store.setType('TL')">TL</button>
+    @if (store.selectedCarrierId() !== null) {
+      <button class="link" (click)="store.clearSelection()">Clear selection</button>
+    }
+  </div>
 </header>
 
-@if (store.loading()) {
-  <p>Loading…</p>
-} @else if (store.error()) {
-  <p class="text-danger">{{ store.error() }}</p>
-} @else {
-  <table class="table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Carrier</th>
-        <th>Type</th>
-        <th>Quotes</th>
-        <th>Over%</th>
-        <th>Avg Δ $</th>
-        <th>Avg Δ %</th>
-        <th>Shipments</th>
-        <th>Avg Δ Days</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (m of ranked(); track m.carrierId; let i = $index) {
-        <tr (click)="store.selectCarrier(m.carrierId)" [class.selected]="m.carrierId === store.selectedCarrierId()">
-          <td>{{ i + 1 }}</td>
-          <td>{{ m.carrierName }}</td>
-          <td>{{ m.truckType }}</td>
-          <td>{{ m.cost.quoteCount }}</td>
-          <td>{{ (m.cost.overRate * 100) | number:'1.0-1' }}%</td>
-          <td>{{ m.cost.avgDelta | number:'1.2-2' }}</td>
-          <td>{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</td>
-          <td>{{ m.service.shipments }}</td>
-          <td>{{ m.service.avgDeltaDays | number:'1.2-2' }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+<div class="table-wrapper" role="table" aria-label="Carrier overview leaderboard">
+  <div class="row header" role="row">
+    <div class="cell rank" role="columnheader">#</div>
+    <button class="cell carrier"   (click)="toggleSort('carrier')"     role="columnheader" [attr.aria-sort]="ariaSort('carrier')">Carrier</button>
+    <button class="cell type"      (click)="toggleSort('type')"        role="columnheader" [attr.aria-sort]="ariaSort('type')">Type</button>
+    <button class="cell quotes"    (click)="toggleSort('quotes')"      role="columnheader" [attr.aria-sort]="ariaSort('quotes')">Quotes</button>
+    <button class="cell over"      (click)="toggleSort('overRate')"    role="columnheader" [attr.aria-sort]="ariaSort('overRate')">Over%</button>
+    <button class="cell avgdelta"  (click)="toggleSort('avgDelta')"    role="columnheader" [attr.aria-sort]="ariaSort('avgDelta')">Avg Δ $</button>
+    <button class="cell avgpct"    (click)="toggleSort('avgDeltaPct')" role="columnheader" [attr.aria-sort]="ariaSort('avgDeltaPct')">Avg Δ %</button>
+    <button class="cell ship"      (click)="toggleSort('shipments')"   role="columnheader" [attr.aria-sort]="ariaSort('shipments')">Shipments</button>
+    <button class="cell avgdays"   (click)="toggleSort('avgDeltaDays')" role="columnheader" [attr.aria-sort]="ariaSort('avgDeltaDays')">Avg Δ Days</button>
+  </div>
+
+  <div
+    *ngFor="let m of pagedRows; let i = index; trackBy: trackByCarrier"
+    class="row body"
+    role="row"
+    (click)="store.selectCarrier(m.carrierId)"
+    [class.selected]="m.carrierId === store.selectedCarrierId()">
+    <div class="cell rank" role="cell">{{ rank(i + pageIndex * pageSize) }}</div>
+    <div class="cell carrier" role="cell">{{ m.carrierName }}</div>
+    <div class="cell type" role="cell">{{ m.truckType }}</div>
+    <div class="cell quotes" role="cell">{{ m.cost.quoteCount | number }}</div>
+    <div class="cell over" role="cell">{{ (m.cost.overRate != null ? m.cost.overRate : 0) | percent:'1.0-1' }}</div>
+    <div class="cell avgdelta" role="cell">{{ m.cost.avgDelta | number:'1.2-2' }}</div>
+    <div class="cell avgpct" role="cell">{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</div>
+    <div class="cell ship" role="cell">{{ m.service.shipments | number }}</div>
+    <div class="cell avgdays" role="cell">{{ m.service.avgDeltaDays | number:'1.2-2' }}</div>
+  </div>
+
+  <div *ngIf="rows.length === 0" class="empty">No carriers match your filter.</div>
+</div>
