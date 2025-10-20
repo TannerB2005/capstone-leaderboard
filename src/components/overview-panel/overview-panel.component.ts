@@ -1,4 +1,4 @@
-import { Component, Signal, computed} from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ScorecardStore } from '../../stores/scorecard.store';
@@ -24,11 +24,16 @@ type SortField =
 export class OverviewPanelComponent {
   constructor(public store: ScorecardStore) {}
 
-  // Search/sort state (mirrors BusinessLeaderboard behavior)
+  // Search/sort state (BusinessLeaderboard behavior)
   filterText = '';
   // Default ranking = lower (avgDeltaPct + avgDeltaDays) is better
   sortField: SortField = 'rankScore';
   sortDir: 'asc' | 'desc' = 'asc';
+
+  // Pagination
+  pageIndex = 0;
+  pageSize = 5;
+  readonly pageSizes = [5, 10];
 
   // Derived: overview rows filtered and sorted
   get rows() {
@@ -53,21 +58,31 @@ export class OverviewPanelComponent {
         case 'carrier':     return m.carrierName;
         case 'type':        return m.truckType;
         case 'quotes':      return m.cost.quoteCount;
-        case 'overRate':    return m.cost.overRate;
-        case 'avgDelta':    return m.cost.avgDelta;
-        case 'avgDeltaPct': return m.cost.avgDeltaPct;
-        case 'shipments':   return m.service.shipments;
-        case 'avgDeltaDays':return m.service.avgDeltaDays;
+        case 'overRate':    return m.cost.overRate ?? 0;
+        case 'avgDelta':    return m.cost.avgDelta ?? 0;
+        case 'avgDeltaPct': return m.cost.avgDeltaPct ?? 0;
+        case 'shipments':   return m.service.shipments ?? 0;
+        case 'avgDeltaDays':return m.service.avgDeltaDays ?? 0;
       }
     };
 
-    return [...filtered].sort((a,b) => {
+    return [...filtered].sort((a, b) => {
       const av = val(a);
       const bv = val(b);
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
       return String(av).localeCompare(String(bv)) * dir;
     });
   }
+
+  // Paged slice for readability in the dashboard grid
+  get pagedRows() {
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    return this.rows.slice(start, end);
+  }
+  get totalPages() { return Math.max(1, Math.ceil(this.rows.length / this.pageSize)); }
+  get pageDisplayStart() { return this.rows.length ? this.pageIndex * this.pageSize + 1 : 0; }
+  get pageDisplayEnd() { return Math.min((this.pageIndex + 1) * this.pageSize, this.rows.length); }
 
   // Rank number display (1-based)
   rank(index: number) { return index + 1; }
@@ -84,6 +99,7 @@ export class OverviewPanelComponent {
         : (field === 'carrier' || field === 'type') ? 'asc'
         : 'desc';
     }
+    this.pageIndex = 0;
   }
   ariaSort(field: SortField) {
     return this.sortField === field ? this.sortDir : 'none';
@@ -99,6 +115,7 @@ export class OverviewPanelComponent {
       next === 'rankScore' ? 'asc'
       : (next === 'carrier' || next === 'type') ? 'asc'
       : 'desc';
+    this.pageIndex = 0;
   }
   toggleSortDirectionOnly() {
     this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
@@ -108,6 +125,13 @@ export class OverviewPanelComponent {
     else this.cycleSortField();
   }
 
-  clearFilter() { this.filterText = ''; }
+  // Filter/pager helpers
+  clearFilter() { this.filterText = ''; this.pageIndex = 0; }
+  setPageSize(sz: number) { this.pageSize = sz; this.pageIndex = 0; }
+  firstPage() { this.pageIndex = 0; }
+  prevPage() { this.pageIndex = Math.max(0, this.pageIndex - 1); }
+  nextPage() { this.pageIndex = Math.min(this.totalPages - 1, this.pageIndex + 1); }
+  lastPage() { this.pageIndex = Math.max(0, this.totalPages - 1); }
+
   trackByCarrier(_: number, m: ReturnType<ScorecardStore['filteredScorecard']>[number]) { return m.carrierId; }
 }

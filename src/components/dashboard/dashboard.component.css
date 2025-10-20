@@ -1,10 +1,32 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: minmax(260px, 1fr) minmax(260px, 1fr);
+  grid-template-areas:
+    "overview overview"
+    "cost     ship"
+    "service  service";
+  grid-template-rows: minmax(360px, auto) minmax(300px, 1fr) minmax(300px, 1fr);
   gap: 12px;
-  height: calc(100vh - 32px);
+  height: auto;                 /* allow natural height */
+  min-height: calc(100vh - 32px);
   padding: 12px;
   box-sizing: border-box;
 }
+
 .pane { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px; overflow: auto; }
+.pane.overview-pane { grid-area: overview; }
+.pane.cost-pane     { grid-area: cost; }
+.pane.ship-pane     { grid-area: ship; }
+.pane.service-pane  { grid-area: service; }
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "overview"
+      "cost"
+      "ship"
+      "service";
+    grid-template-rows: auto;
+  }
+}

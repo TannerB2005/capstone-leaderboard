@@ -12,24 +12,29 @@
           name="filter"
           aria-label="Filter carriers"
         />
-        <button
-          type="button"
-          class="clear-btn"
-          *ngIf="filterText"
-          (click)="clearFilter()"
-          aria-label="Clear filter">×</button>
+        <button type="button" class="clear-btn" *ngIf="filterText" (click)="clearFilter()" aria-label="Clear filter">×</button>
       </div>
     </form>
 
-    <button
-      class="sort-info actionable"
-      type="button"
-      (click)="handleSortInfoClick($event)"
-      title="Click to cycle sort field; Shift+Click to toggle direction">
+    <button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
       Sorted by {{ sortField }} ({{ sortDir }})
     </button>
 
     <div class="spacer"></div>
+
+    <div class="pager">
+      <label>
+        Rows:
+        <select [ngModel]="pageSize" (ngModelChange)="setPageSize($event)">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+      <button type="button" (click)="firstPage()" [disabled]="pageIndex === 0" aria-label="First page">«</button>
+      <button type="button" (click)="prevPage()" [disabled]="pageIndex === 0" aria-label="Previous page">‹</button>
+      <span class="page-info">{{ pageDisplayStart }}–{{ pageDisplayEnd }} / {{ rows.length }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="pageIndex >= totalPages - 1" aria-label="Next page">›</button>
+      <button type="button" (click)="lastPage()" [disabled]="pageIndex >= totalPages - 1" aria-label="Last page">»</button>
+    </div>
 
     <button [class.active]="store.selectedType() === 'ALL'" (click)="store.setType('ALL')">All</button>
     <button [class.active]="store.selectedType() === 'LTL'" (click)="store.setType('LTL')">LTL</button>
@@ -54,18 +59,16 @@
   </div>
 
   <div
-    *ngFor="let m of rows; let i = index; trackBy: trackByCarrier"
+    *ngFor="let m of pagedRows; let i = index; trackBy: trackByCarrier"
     class="row body"
     role="row"
     (click)="store.selectCarrier(m.carrierId)"
     [class.selected]="m.carrierId === store.selectedCarrierId()">
-    <div class="cell rank" role="cell">{{ rank(i) }}</div>
+    <div class="cell rank" role="cell">{{ rank(i + pageIndex * pageSize) }}</div>
     <div class="cell carrier" role="cell">{{ m.carrierName }}</div>
     <div class="cell type" role="cell">{{ m.truckType }}</div>
     <div class="cell quotes" role="cell">{{ m.cost.quoteCount | number }}</div>
-    <div class="cell over" role="cell">
-      {{ (m.cost.overRate != null ? m.cost.overRate : 0) | percent:'1.0-1' }}
-    </div>
+    <div class="cell over" role="cell">{{ (m.cost.overRate != null ? m.cost.overRate : 0) | percent:'1.0-1' }}</div>
     <div class="cell avgdelta" role="cell">{{ m.cost.avgDelta | number:'1.2-2' }}</div>
     <div class="cell avgpct" role="cell">{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</div>
     <div class="cell ship" role="cell">{{ m.service.shipments | number }}</div>

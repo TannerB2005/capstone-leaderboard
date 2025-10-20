@@ -8,10 +8,8 @@ import { ServiceDeltaLineChartComponent } from '../charts/service-delta-line-cha
 @Component({
   selector: 'dashboard',
   standalone: true,
-  imports: [CommonModule, OverviewPanelComponent, CostDeltaLineChartComponent, ShipmentsBarChartComponent, ShipmentsBarChartComponent, ServiceDeltaLineChartComponent],
+  imports: [CommonModule, OverviewPanelComponent, CostDeltaLineChartComponent, ShipmentsBarChartComponent, ServiceDeltaLineChartComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
-
-}
+export class DashboardComponent {}
