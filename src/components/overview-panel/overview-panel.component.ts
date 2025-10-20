@@ -33,7 +33,7 @@ export class OverviewPanelComponent {
   // Pagination
   pageIndex = 0;
   pageSize = 5;
-  readonly pageSizes = [5, 10];
+  readonly pageSizes = [5, 10, 24];
 
   // Derived: overview rows filtered and sorted
   get rows() {

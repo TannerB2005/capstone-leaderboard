@@ -3,8 +3,8 @@
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "overview overview"
-    "cost     ship"
-    "service  service";
+    "cost     service"
+    "ship  ship";
   grid-template-rows: minmax(360px, auto) minmax(300px, 1fr) minmax(300px, 1fr);
   gap: 12px;
   height: auto;                 /* allow natural height */
