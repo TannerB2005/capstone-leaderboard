@@ -1,0 +1,180 @@
+:host {
+  display: block;
+  /* Brand colors */
+  --brand1: #005596;
+  --brand2: #1BA3DD;
+  --brand-accent: #3b82f6;
+  --text: #e5e9f0;
+  --panel: rgba(255, 255, 255, 0.1);
+  --border: rgba(226, 232, 240, 0.2);
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --border-tint: rgba(0, 110, 175, 0.3);
+  --accent: var(--brand2);
+  --accent-glow: 0 0 0 3px rgba(27, 163, 221, 0.15);
+  --success: #10b981;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+}
+
+.table-wrapper {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.85), rgba(32, 54, 80, 0.78));
+  border: 1px solid var(--border-tint);
+  box-shadow: 
+    0 6px 26px -10px rgba(0, 55, 95, 0.55), 
+    0 0 0 1px rgba(0, 110, 175, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  min-height: 200px;
+}
+
+.table-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 120px);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+  font-family: 'Harabara', 'Harabara Mais', Tahoma, Verdana, Helvetica, Arial, sans-serif;
+}
+
+/* Override Bootstrap table-sm if it exists */
+.table.table-sm thead th,
+.table.table-sm tbody td {
+  padding: 0.85rem 1.4rem !important;
+}
+
+.table thead th {
+  background: linear-gradient(90deg, #1e2530, #1b212b);
+  color: white;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  padding: 0.85rem 1.4rem;
+  border: none;
+  border-bottom: 1px solid var(--border-soft);
+  position: relative;
+}
+
+.table thead tr:first-child th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.table thead tr:first-child th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.table tbody td {
+  padding: 0.95rem 1.4rem;
+  border: none;
+  border-bottom: 0.25px solid rgba(156, 163, 175, 0.3);
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.table tbody tr {
+  transition: background 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(0, 85, 150, 0.14), rgba(27, 163, 221, 0.05));
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 11px;
+}
+
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 11px;
+}
+
+/* Column-specific styling */
+.table tbody td:nth-child(1) {
+  font-weight: 600;
+  color: var(--brand1);
+}
+
+.table tbody td:nth-child(6),
+.table tbody td:nth-child(7),
+.table tbody td:nth-child(9) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Enhanced styling for numeric columns */
+.table tbody td:nth-child(6),
+.table tbody td:nth-child(7),
+.table tbody td:nth-child(9) {
+  position: relative;
+}
+
+/* Visual indicators based on value ranges */
+.table tbody td:nth-child(6) {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.table tbody td:nth-child(7) {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.table tbody td:nth-child(9) {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #6b7280;
+  text-align: center;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Responsive design */
+@media (max-width: 1080px) {
+  .table thead th,
+  .table tbody td {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .table thead th:nth-child(3),
+  .table thead th:nth-child(4),
+  .table thead th:nth-child(5),
+  .table tbody td:nth-child(3),
+  .table tbody td:nth-child(4),
+  .table tbody td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .table thead th:nth-child(7),
+  .table tbody td:nth-child(7) {
+    display: none;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
