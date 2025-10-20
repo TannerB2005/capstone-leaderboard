@@ -1,4 +1,9 @@
-<h3>Shipments</h3>
+@if (selectedCarrierId() == null) {
+  <h3>Shipments of all carriers</h3>
+} @else {
+  <h3>Shipments of {{ selectedCarrierName() }}</h3>
+}
+
 <google-chart
   [type]="chartType"
   [columns]="columns()"
