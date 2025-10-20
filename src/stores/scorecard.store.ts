@@ -144,7 +144,7 @@ export class ScorecardStore {
       //Overview mode: shipments per carrier
       const data: (string | number)[][] = [];
       for (const m of this.scorecard()) {
-        data.push([m.carrierName, m.service.shipments]);
+        data.push([m.carrierId, m.service.shipments]);
       }
       return data;
     } else {

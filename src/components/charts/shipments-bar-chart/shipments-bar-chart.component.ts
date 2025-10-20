@@ -14,6 +14,15 @@ export class ShipmentsBarChartComponent {
   constructor(private store: ScorecardStore) {}
   chartType = ChartType.ColumnChart;
 
+  // Expose selection for template
+  readonly selectedCarrierId = computed(() => this.store.selectedCarrierId());
+  readonly selectedCarrierName = computed(() => {
+    const id = this.store.selectedCarrierId();
+    if (id == null) return '';
+    const c = this.store.carriers().find(c => c.TrnspCode === id);
+    return c?.CarrierName ?? `Carrier-${id}`;
+  });
+
   // Columns depend on selection: overview uses string domain; zoom uses date domain
   columns = computed<Column[]>(() =>
     this.store.selectedCarrierId() == null
