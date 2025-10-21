@@ -274,3 +274,19 @@ html {
 .sort-info.actionable { border:1px solid var(--border-soft); background: rgba(0,110,175,.15); }
 .sort-info.actionable:hover, .sort-info.actionable:focus-visible { border-color: var(--border-tint); background: rgba(0,110,175,.25); box-shadow: 0 0 0 1px rgba(0,110,175,.35), 0 0 0 4px rgba(0,110,175,.25); }
 .sort-info.actionable:active { background: rgba(0,110,175,.32); }
+
+/* Top logo: slightly smaller and better blended on dark backdrop */
+.leaderboard-shell > header:first-of-type {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0 0.55rem;
+}
+.leaderboard-shell > header:first-of-type img {
+  height: 60px; /* reduced size */
+  width: auto;
+  opacity: 0.9; /* soften to blend with background */
+  filter: drop-shadow(0 2px 10px rgba(0,85,150,.28)) saturate(1.03);
+}
+@media (max-width: 640px) {
+  .leaderboard-shell > header:first-of-type img { height: 28px; }
+}

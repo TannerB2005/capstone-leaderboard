@@ -15,3 +15,20 @@ app-root {
 	display: block;
 	min-height: 100vh;
 }
+
+/* Brand stripe color (tuned to awlogo primary) */
+:root {
+	--brand-stripe-color: #005596; /* deep Alan Wire blue; adjust if needed */
+}
+
+/* Thin brand-colored line fixed to the very top of the viewport */
+.brand-stripe {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 6px; /* thickness of the line */
+	background: var(--brand-stripe-color);
+	z-index: 9999;
+	pointer-events: none; /* avoid intercepting clicks */
+}
