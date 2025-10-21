@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global reset to remove default page margins/padding */
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+/* Fallback page background to match app theme (avoids white gutters) */
+body {
+	background-color: #0b1420; /* matches darkest tone in app gradient */
+}
+
+/* Ensure Angular root fills viewport height */
+app-root {
+	display: block;
+	min-height: 100vh;
+}

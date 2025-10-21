@@ -1,3 +1,8 @@
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
 .leaderboard-shell {
   /* Brand colors */
   --brand1: #005596;
