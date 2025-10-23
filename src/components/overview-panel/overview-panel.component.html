@@ -50,11 +50,11 @@
     <div class="cell rank" role="columnheader">#</div>
     <button class="cell carrier"   (click)="toggleSort('carrier')"     role="columnheader" [attr.aria-sort]="ariaSort('carrier')">Carrier</button>
     <button class="cell type"      (click)="toggleSort('type')"        role="columnheader" [attr.aria-sort]="ariaSort('type')">Type</button>
-    <button class="cell quotes"    (click)="toggleSort('quotes')"      role="columnheader" [attr.aria-sort]="ariaSort('quotes')">Quotes</button>
-    <button class="cell over"      (click)="toggleSort('overRate')"    role="columnheader" [attr.aria-sort]="ariaSort('overRate')">Over%</button>
-    <button class="cell avgdelta"  (click)="toggleSort('avgDelta')"    role="columnheader" [attr.aria-sort]="ariaSort('avgDelta')">Avg Δ $</button>
-    <button class="cell avgpct"    (click)="toggleSort('avgDeltaPct')" role="columnheader" [attr.aria-sort]="ariaSort('avgDeltaPct')">Avg Δ %</button>
-    <button class="cell ship"      (click)="toggleSort('shipments')"   role="columnheader" [attr.aria-sort]="ariaSort('shipments')">Shipments</button>
+    <button class="cell quotes"    (click)="toggleSort('quotes')"      role="columnheader" [attr.aria-sort]="ariaSort('quotes')"># of Quotes</button>
+    <button class="cell over"      (click)="toggleSort('overRate')"    role="columnheader" [attr.aria-sort]="ariaSort('overRate')">% of Quotes Over</button>
+    <button class="cell avgdelta"  (click)="toggleSort('avgDelta')"    role="columnheader" [attr.aria-sort]="ariaSort('avgDelta')">Avg Δ $ &lpar; actual charge - quote &rpar;</button>
+    <button class="cell avgpct"    (click)="toggleSort('avgDeltaPct')" role="columnheader" [attr.aria-sort]="ariaSort('avgDeltaPct')">Avg Δ % Per Quote</button>
+    <button class="cell ship"      (click)="toggleSort('shipments')"   role="columnheader" [attr.aria-sort]="ariaSort('shipments')"># of Shipments</button>
     <button class="cell avgdays"   (click)="toggleSort('avgDeltaDays')" role="columnheader" [attr.aria-sort]="ariaSort('avgDeltaDays')">Avg Δ Days</button>
   </div>
 
@@ -72,7 +72,7 @@
     <div class="cell avgdelta" role="cell">{{ m.cost.avgDelta | number:'1.2-2' }}</div>
     <div class="cell avgpct" role="cell">{{ m.cost.avgDeltaPct | percent:'1.1-1' }}</div>
     <div class="cell ship" role="cell">{{ m.service.shipments | number }}</div>
-    <div class="cell avgdays" role="cell">{{ m.service.avgDeltaDays | number:'1.2-2' }}</div>
+    <div class="cell avgdays" role="cell">{{ m.service.avgDeltaDays | number:'1.0-0' }}</div>
   </div>
 
   <div *ngIf="rows.length === 0" class="empty">No carriers match your filter.</div>
