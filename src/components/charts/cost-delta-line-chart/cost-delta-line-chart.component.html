@@ -1,7 +1,7 @@
 <h3>
   {{ selectedCarrierId() == null
       ? 'Cost Delta (Quoted vs Charged) for All Carriers'
-      : 'Cost Delta (Quoted vs Charged) — ' + selectedCarrierName() }}
+      : 'Cost Delta (Quoted vs Charged) for ' + selectedCarrierName() }}
 </h3>
 <google-chart
   [type]="chartType"
