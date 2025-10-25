@@ -28,6 +28,25 @@
   );
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.toggle-btn {
+  appearance: none;
+  border: 1px solid rgba(226,232,240,.9);
+  border-radius: 8px;
+  background: rgba(0,110,175,.08);
+  color: #0f172a;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 h3 {
   margin: 0 0 16 0;
   font-size: 18px;

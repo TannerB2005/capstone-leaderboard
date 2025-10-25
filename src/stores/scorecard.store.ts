@@ -162,6 +162,36 @@ export class ScorecardStore {
     }
   });
 
+  // 4) Weight series (bar/column chart):
+  // If a carrier is selected: total weight per day from quotes; else: total weight per carrier
+  readonly weightSeries = computed(() => {
+    const id = this.selectedCarrierId();
+
+    if (id == null) {
+      // Overview: total weight per carrier (from QUOTESvsACTUAL.csv)
+      const byCarrier = new Map<number, number>();
+      for (const q of this.quotes()) {
+        byCarrier.set(q.carrier, (byCarrier.get(q.carrier) ?? 0) + (Number.isFinite(q.weight) ? q.weight : 0));
+      }
+      const data: (number | string)[][] = [];
+      const keys = Array.from(byCarrier.keys()).sort((a, b) => a - b);
+      for (const k of keys) data.push([k, Math.round(byCarrier.get(k)!)]);
+      return data;
+    } else {
+      // Carrier selected: total weight per day (quote date)
+      const rows = this.filteredQuotes();
+      const byDay = new Map<string, number>();
+      for (const r of rows) {
+        const day = this.dayKey(r.quoteDate);
+        byDay.set(day, (byDay.get(day) ?? 0) + (Number.isFinite(r.weight) ? r.weight : 0));
+      }
+      const data: (Date | number)[][] = [];
+      const keys = Array.from(byDay.keys()).sort();
+      for (const k of keys) data.push([new Date(k), Math.round(byDay.get(k)!)]);
+      return data;
+    }
+  });
+
   constructor(private csv: CsvService, private svc: ScorecardService) {}
 
   // Load all CSVs at once and compute scorecard metrics

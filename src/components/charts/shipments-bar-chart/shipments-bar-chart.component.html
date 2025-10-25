@@ -1,8 +1,9 @@
-@if (selectedCarrierId() == null) {
-  <h3>Shipments of all carriers</h3>
-} @else {
-  <h3>Shipments of {{ selectedCarrierName() }}</h3>
-}
+<div class="header-row">
+  <h3>{{ title() }}</h3>
+  <button type="button" class="toggle-btn" (click)="toggleMode()">
+    {{ mode() === 'shipments' ? 'Show weight' : 'Show shipments' }}
+  </button>
+</div>
 
 <google-chart
   [type]="chartType"
