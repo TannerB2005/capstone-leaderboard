@@ -19,6 +19,8 @@ export class ShipmentsBarChartComponent {
   toggleMode() {
     this.mode.set(this.mode() === 'shipments' ? 'weight' : 'shipments');
   }
+   // Scale weight values for display (thousands of pounds)
+   private readonly weightScale = 1000;
 
   // Expose selection for template
   readonly selectedCarrierId = computed(() => this.store.selectedCarrierId());
@@ -34,32 +36,81 @@ export class ShipmentsBarChartComponent {
     const isWeight = this.mode() === 'weight';
     const sel = this.selectedCarrierId();
     if (sel == null) return isWeight ? 'Total weight shipped by carrier' : 'Total number of shipments by carrier';
-    return isWeight ? `Weight and date shipped for ${this.selectedCarrierName()}` : `Shipments by date for ${this.selectedCarrierName()}`;
+    return isWeight ? `Weight and week shipped for ${this.selectedCarrierName()}` : `Shipments by week for ${this.selectedCarrierName()}`;
   });
 
-  // Columns depend on mode and selection
+    // Column defs (keeps tooltip role for custom HTML)
   columns = computed<Column[]>(() => {
     const sel = this.selectedCarrierId();
     const isWeight = this.mode() === 'weight';
-    if (sel == null) {
-      return [{ type: 'string', label: 'Carrier' }, { type: 'number', label: isWeight ? 'Weight (lb)' : 'Shipments' }];
-    } else {
-      return [{ type: 'date', label: isWeight ? 'Date' : 'Week' }, { type: 'number', label: isWeight ? 'Weight (lb)' : 'Shipments' }];
-    }
+    const domain: Column = sel == null
+      ? { type: 'string', label: 'Carrier' }
+      : { type: 'date', label: isWeight ? 'Date' : 'Week' };
+    const value: Column = { type: 'number', label: isWeight ? 'Weight (000 lb)' : 'Shipments' };
+    const tooltip: Column = { type: 'string', role: 'tooltip', p: { html: true } } as Column & { p: { html: boolean } };
+    return [domain, value, tooltip];
   });
 
-  // Data switches between existing shipmentsSeries and new weightSeries
-  data = computed(() => (this.mode() === 'shipments' ? this.store.shipmentsSeries() : this.store.weightSeries()));
+  // Data: plot scaled weight, but tooltip shows full precision + date when selected
+  data = computed(() => {
+    const isWeight = this.mode() === 'weight';
+    const raw = isWeight ? this.store.weightSeries() : this.store.shipmentsSeries();
+    if (!Array.isArray(raw)) return [];
 
-  // Chart options match current styling; axis titles adapt to mode/selection
+    const sel = this.selectedCarrierId();
+
+    if (!isWeight) {
+      // Shipments tooltips: include date when a carrier is selected
+      return raw.map(row => {
+        const x = row[0] as any;
+        const y = Number(row[1] ?? 0);
+        const title = sel == null ? String(x) : this.fmtDate(x as Date);
+        const html = this.tt(title, 'Shipments', this.format(y));
+        return [x, y, html];
+      });
+    }
+
+    // Weight tooltips: axis uses thousands; tooltip shows unscaled pounds with label
+    return raw.map(row => {
+      const x = row[0] as any;               // string (carrier) or Date (selected)
+      const totalLb = Number(row[1] ?? 0);   // unscaled
+      const scaled = Math.round(totalLb / this.weightScale); // thousands
+      const title = sel == null ? String(x) : this.fmtDate(x as Date);
+      const html = this.tt(title, 'Weight (lb)', this.format(totalLb));
+      return [x, scaled, html];
+    });
+  });
+
+  // Options: enable HTML tooltips and label axis to indicate thousands
   options = computed(() => {
     const sel = this.selectedCarrierId();
     const isWeight = this.mode() === 'weight';
     return {
       legend: { position: 'none' },
+      tooltip: { isHtml: true },
       hAxis: { title: sel == null ? 'Carrier' : (isWeight ? 'Date' : 'Week') },
-      vAxis: { title: isWeight ? 'Weight (lb)' : 'Shipments' },
+      vAxis: {
+        title: isWeight ? 'Weight (in thousands lb)' : 'Shipments',
+        format: '#,###'
+      },
       chartArea: { left: 60, right: 20, top: 24, bottom: 48, width: '100%', height: '70%' }
     };
   });
-}
+
+  // Helpers: date + tooltip HTML
+  private fmtDate(d: Date) {
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(d);
+  }
+  private format(n: number) {
+    return new Intl.NumberFormat('en-US').format(Math.round(n));
+  }
+  private tt(title: string, label: string, value: string) {
+    // minimal HTML formatting for clearer tooltip
+    return `
+      <div style="font:12px/1.4 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial;">
+        <div style="font-weight:600;margin-bottom:4px;">${title}</div>
+        <div><span style="color:#475569;">${label}</span>: <strong>${value}</strong></div>
+      </div>
+    `;
+  }
+  }
