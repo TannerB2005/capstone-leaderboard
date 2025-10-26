@@ -22,6 +22,15 @@ export class CostDeltaLineChartComponent {
     { type: 'number', label: 'Delta' }
   ];
 
+   // Add selection helpers for the template
+   readonly selectedCarrierId = computed(() => this.store.selectedCarrierId());
+   readonly selectedCarrierName = computed(() => {
+     const id = this.store.selectedCarrierId();
+     if (id == null) return '';
+     const c = this.store.carriers().find(c => c.TrnspCode === id);
+     return c?.CarrierName ?? `Carrier-${id}`;
+   });
+
   // Store returns a header row + data rows; pass rows only to the chart.
   data = computed(() => this.store.costDeltaDailySeries().slice(1));
 
