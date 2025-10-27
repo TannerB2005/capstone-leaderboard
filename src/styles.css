@@ -15,10 +15,26 @@ app-root {
 	display: block;
 	min-height: 100vh;
 }
+/* Harabara Mais as the global app font */
+@font-face {
+  font-family: 'Harabara Mais';
+  src:
+    url('/fonts/harabara-mais/Harabara-Mais.woff2') format('woff2'),
+    url('/fonts/harabara-mais/Harabara-Mais.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
-/* Brand stripe color (tuned to awlogo primary) */
+/* App-wide font variable */
 :root {
-	--brand-stripe-color: #005596; /* deep Alan Wire blue; adjust if needed */
+  --brand-stripe-color: #005596; /* deep Alan Wire blue; adjust if needed */
+  --app-font: 'Harabara Mais', -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Apply everywhere */
+html, body, * {
+  font-family: var(--app-font);
 }
 
 /* Thin brand-colored line fixed to the very top of the viewport */
