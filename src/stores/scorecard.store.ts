@@ -246,7 +246,6 @@ export class ScorecardStore {
           this.deliveries.set(deliveries);
           const metrics = this.svc.computeScorecard(carriers, quotes, deliveries);
           this.scorecard.set(metrics);
-          console.log('Scorecard ready:', metrics.length, metrics.slice(0, 5));
         },
         error: (err) => this.error.set(err?.message ?? 'Failed to load CSVs')
       });
