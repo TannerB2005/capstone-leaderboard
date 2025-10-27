@@ -35,6 +35,30 @@ export class OverviewPanelComponent {
   pageSize = 5;
   readonly pageSizes = [5, 10, 24];
 
+  // Date filter UI state
+  preset: 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM' = 'ALL';
+  fromStr = '';
+  toStr = '';
+
+  applyPreset(p: typeof this.preset) {
+    this.preset = p;
+    this.store.setDatePreset(p);
+    if (p !== 'CUSTOM') { this.fromStr = ''; this.toStr = ''; }
+    this.pageIndex = 0;
+  }
+  applyCustom() {
+    const from = this.fromStr ? new Date(this.fromStr + 'T00:00:00Z') : null;
+    const to   = this.toStr   ? new Date(this.toStr   + 'T00:00:00Z') : null;
+    this.store.setDateRange(from, to);
+    this.pageIndex = 0;
+  }
+  clearDates() {
+    this.fromStr = ''; this.toStr = '';
+    this.preset = 'ALL';
+    this.store.setDatePreset('ALL');
+    this.pageIndex = 0;
+  }
+
   // Derived: overview rows filtered and sorted
   get rows() {
     const list = this.store.filteredScorecard();
