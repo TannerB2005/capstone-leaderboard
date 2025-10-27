@@ -86,12 +86,19 @@ export class ShipmentsBarChartComponent {
     const sel = this.selectedCarrierId();
     const isWeight = this.mode() === 'weight';
     return {
-      legend: { position: 'none' },
-      tooltip: { isHtml: true },
-      hAxis: { title: sel == null ? 'Carrier' : (isWeight ? 'Date' : 'Week') },
+      fontName: 'Harabara Mais',
+      legend: { position: 'none', textStyle: { fontName: 'Harabara Mais' } },
+      tooltip: { isHtml: true, textStyle: { fontName: 'Harabara Mais' } },
+      hAxis: {
+        title: sel == null ? 'Carrier' : (isWeight ? 'Date' : 'Week'),
+        textStyle: { fontName: 'Harabara Mais' },
+        titleTextStyle: { fontName: 'Harabara Mais', bold: true }
+      },
       vAxis: {
         title: isWeight ? 'Weight (in thousands lb)' : 'Shipments',
-        format: '#,###'
+        format: '#,###',
+        textStyle: { fontName: 'Harabara Mais' },
+        titleTextStyle: { fontName: 'Harabara Mais', bold: true }
       },
       chartArea: { left: 60, right: 20, top: 24, bottom: 48, width: '100%', height: '70%' }
     };
