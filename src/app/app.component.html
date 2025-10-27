@@ -2,69 +2,6 @@
   <header><img src="footer-logo.svg" alt="Logo" /></header>
   <header class="lb-header">
     <h1>Carrier Scorecard</h1>
-    <!-- <h1>Business Leaderboard</h1>
-    <div class="meta">
-      <form class="filter-form" (submit)="$event.preventDefault()">
-        <label class="visually-hidden" for="filterBox">Filter</label>
-        <div class="filter-controls">
-          <input
-            id="filterBox"
-            type="text"
-            placeholder="Filter by name, category, location..."
-            [(ngModel)]="filterText"
-            name="filter"
-            aria-label="Filter businesses"
-          />
-          <button type="button" class="clear-btn" *ngIf="filterText" (click)="clearFilter()" aria-label="Clear filter">×</button>
-        </div>
-      </form>
-      <button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
-        Sorted by {{ sortField }} ({{ sortDir }})
-      </button>
-    </div>
-  </header>
-
-  <div class="table-wrapper" role="table" aria-label="Business performance leaderboard">
-    <div class="row header" role="row">
-      <div class="cell rank" role="columnheader">#</div>
-      <button class="cell name" (click)="toggleSort('name')" role="columnheader" [attr.aria-sort]="ariaSort('name')">Name</button>
-      <button class="cell category" (click)="toggleSort('category')" role="columnheader" [attr.aria-sort]="ariaSort('category')">Category</button>
-      <button class="cell location" (click)="toggleSort('location')" role="columnheader" [attr.aria-sort]="ariaSort('location')">Location</button>
-      <button class="cell score" (click)="toggleSort('score')" role="columnheader" [attr.aria-sort]="ariaSort('score')">Score</button>
-      <button class="cell trend" (click)="toggleSort('trend')" role="columnheader" [attr.aria-sort]="ariaSort('trend')">Trend</button>
-      <div class="cell updated" role="columnheader">Updated</div>
-    </div>
-
-    <div *ngFor="let b of filteredAndSorted; let i = index; trackBy: trackById" class="row body" role="row">
-      <div class="cell rank" role="cell">{{ rank(i) }}</div>
-      <div class="cell name" role="cell">{{ b.name }}</div>
-      <div class="cell category" role="cell">{{ b.category }}</div>
-      <div class="cell location" role="cell">{{ b.location }}</div>
-      <div class="cell score" role="cell">{{ b.score | number }}</div>
-      <div class="cell trend" role="cell">
-        <span [class]="'trend-pill ' + trendClass(b.trend)">{{ formatTrend(b.trend) }}</span>
-      </div>
-      <div class="cell updated" role="cell">{{ b.updatedAt | date:'MMM d, y HH:mm' }}</div>
-    </div>
-
-    <div *ngIf="filteredAndSorted.length === 0" class="empty">No businesses match your filter.</div> -->
-    <!-- <div class="container py-3">
-      <h1>Alan Wire Carrier Scorecard</h1>
-
-      @if (store.loading()) {
-        <p>Loading…</p>
-      } @else if (store.error()) {
-        <p class="text-danger">{{ store.error() }}</p>
-      } @else {
-        <h2 class="mt-3">LTL</h2>
-        <scorecard-table [data]="store.ltl()"></scorecard-table>
-
-        <h2 class="mt-4">TL</h2>
-        <scorecard-table [data]="store.tl()"></scorecard-table>
-      }
-    </div> -->
-  <!-- </div> -->
   <dashboard/>
   <footer class="lb-footer">Mock data for layout purposes. Replace with API integration.</footer>
   <footer><img src="footer-logo.svg" alt="Logo" /></footer>
-<!-- </div> .leaderboard-shell -->
