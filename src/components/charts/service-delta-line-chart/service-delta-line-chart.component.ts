@@ -53,7 +53,7 @@ export class ServiceDeltaLineChartComponent {
  options = {
    fontName: 'Harabara Mais',
    legend: { position: 'bottom', textStyle: { fontName: 'Harabara Mais' } },
-   colors: ['#9A4C1E', '#005596', '#1BA3DD'], // Expected, Actual, Delta
+   colors: ['#005596', '#1BA3DD', '#9A4C1E' ], // Expected, Actual, Delta
    hAxis: { title: 'Date', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
    vAxis: { title: 'Days', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
    chartArea: { left: 60, right: 20, top: 24, bottom: 48, width: '100%', height: '70%' }

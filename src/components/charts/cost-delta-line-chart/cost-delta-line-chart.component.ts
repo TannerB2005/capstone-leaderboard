@@ -59,7 +59,7 @@ export class CostDeltaLineChartComponent {
   options = {
     fontName: 'Harabara Mais',
     legend: { position: 'bottom', textStyle: { fontName: 'Harabara Mais' } },
-    colors: ['#9A4C1E', '#005596', '#1BA3DD'], // Quote, Actual, Delta
+    colors: ['#005596', '#1BA3DD','#9A4C1E' ], // Quote, Actual, Delta
     vAxis: { title: 'Amount ($)', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
     hAxis: { title: 'Date', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
     chartArea: { left: 60, right: 24, top: 24, bottom: 48, width: '100%', height: '70%' }
