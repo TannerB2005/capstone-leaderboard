@@ -16,11 +16,37 @@
       </div>
     </form>
 
-    <button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
-      Sorted by {{ sortField }} ({{ sortDir }})
-    </button>
+<!-- Date filter (drives all charts) -->
+<div class="date-filter">
+  <label>
+    Timeline:
+    <select [(ngModel)]="preset" name="preset" (ngModelChange)="applyPreset($event)">
+      <option value="ALL">All time</option>
+      <option value="TODAY">Today</option>
+      <option value="7D">Last 7 days</option>
+      <option value="30D">Last 30 days</option>
+      <option value="CUSTOM">Custom…</option>
+    </select>
+  </label>
 
-    <div class="spacer"></div>
+  @if (preset === 'CUSTOM') {
+    <label>
+      From:
+      <input type="date" [(ngModel)]="fromStr" name="from" (ngModelChange)="applyCustom()">
+    </label>
+    <label>
+      To:
+      <input type="date" [(ngModel)]="toStr" name="to" (ngModelChange)="applyCustom()">
+    </label>
+    <button type="button" class="link" (click)="clearDates()">Clear</button>
+  }
+</div>
+
+<button class="sort-info actionable" type="button" (click)="handleSortInfoClick($event)" title="Click to cycle sort field; Shift+Click to toggle direction">
+  Sorted by {{ sortField }} ({{ sortDir }})
+</button>
+
+<div class="spacer"></div>
 
     <div class="pager">
       <label>

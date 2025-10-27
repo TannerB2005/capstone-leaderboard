@@ -86,12 +86,20 @@ export class ShipmentsBarChartComponent {
     const sel = this.selectedCarrierId();
     const isWeight = this.mode() === 'weight';
     return {
-      legend: { position: 'none' },
-      tooltip: { isHtml: true },
-      hAxis: { title: sel == null ? 'Carrier' : (isWeight ? 'Date' : 'Week') },
+      fontName: 'Harabara Mais',
+      legend: { position: 'none', textStyle: { fontName: 'Harabara Mais' } },
+      tooltip: { isHtml: true, textStyle: { fontName: 'Harabara Mais' } },
+      colors: ['#005596'],
+      hAxis: {
+        title: sel == null ? 'Carrier' : (isWeight ? 'Date' : 'Week'),
+        textStyle: { fontName: 'Harabara Mais' },
+        titleTextStyle: { fontName: 'Harabara Mais', bold: true }
+      },
       vAxis: {
         title: isWeight ? 'Weight (in thousands lb)' : 'Shipments',
-        format: '#,###'
+        format: '#,###',
+        textStyle: { fontName: 'Harabara Mais' },
+        titleTextStyle: { fontName: 'Harabara Mais', bold: true }
       },
       chartArea: { left: 60, right: 20, top: 24, bottom: 48, width: '100%', height: '70%' }
     };
@@ -105,9 +113,9 @@ export class ShipmentsBarChartComponent {
     return new Intl.NumberFormat('en-US').format(Math.round(n));
   }
   private tt(title: string, label: string, value: string) {
-    // minimal HTML formatting for clearer tooltip
+    // ...existing code...
     return `
-      <div style="font:12px/1.4 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial;">
+      <div style="font:12px/1.4 'Harabara Mais', -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial;">
         <div style="font-weight:600;margin-bottom:4px;">${title}</div>
         <div><span style="color:#475569;">${label}</span>: <strong>${value}</strong></div>
       </div>

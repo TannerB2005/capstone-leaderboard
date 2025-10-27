@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GoogleChartsModule, ChartType } from 'angular-google-charts';
 import { ScorecardStore } from '../../../stores/scorecard.store';
@@ -34,15 +34,34 @@ export class CostDeltaLineChartComponent {
   // Store returns a header row + data rows; pass rows only to the chart.
   data = computed(() => this.store.costDeltaDailySeries().slice(1));
 
+  // Series toggles (Quote, Actual, Delta)
+  readonly showQuote = signal(true);
+  readonly showActual = signal(true);
+  readonly showDelta = signal(true);
+
+  // Wrap existing data with hidden-series as nulls
+  readonly viewData = computed(() => {
+    const raw = this.data();
+    if (!Array.isArray(raw)) return [];
+    const s0 = this.showQuote();
+    const s1 = this.showActual();
+    const s2 = this.showDelta();
+    // Expect: [Date, Quote, Actual, Delta]
+    return raw.map((row: any[]) => {
+      const out = row.slice();
+      if (!s0) out[1] = null;
+      if (!s1) out[2] = null;
+      if (!s2) out[3] = null;
+      return out;
+    });
+  });
+
   options = {
-    legend: { position: 'bottom' },
-    series: {
-      0: { color: '#2563eb' }, // Quote
-      1: { color: '#16a34a' }, // Actual
-      2: { color: '#f97316' }  // Delta
-    },
-    vAxis: { title: 'Amount ($)' },
-    hAxis: { title: 'Date' },
+    fontName: 'Harabara Mais',
+    legend: { position: 'bottom', textStyle: { fontName: 'Harabara Mais' } },
+    colors: ['#005596', '#1BA3DD','#9A4C1E' ], // Quote, Actual, Delta
+    vAxis: { title: 'Amount ($)', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
+    hAxis: { title: 'Date', textStyle: { fontName: 'Harabara Mais' }, titleTextStyle: { fontName: 'Harabara Mais', bold: true } },
     chartArea: { left: 60, right: 24, top: 24, bottom: 48, width: '100%', height: '70%' }
   };
 }

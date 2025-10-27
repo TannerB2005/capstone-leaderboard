@@ -25,23 +25,65 @@ export class ScorecardStore {
   readonly selectedType = signal<'ALL' | 'LTL' | 'TL'>('ALL');
 
   // Derived lists with LTL/TL/ALL selection for overview
+  // Now recomputed from date-filtered rows so the overview reflects the timeline.
   readonly filteredScorecard = computed(() => {
     const type = this.selectedType();
-    const list = this.scorecard();
-    return type === 'ALL' ? list : list.filter(x => x.truckType === type);
+
+    // Date-only filtering (ignore carrier selection so overview always shows all carriers)
+    const from = this.dateFrom();
+    const to = this.dateTo();
+    const quotesInRange = this.quotes().filter(q => this.inRange(q.quoteDate, from, to));
+    const deliveriesInRange = this.deliveries().filter(d => this.inRange(d.delivery, from, to));
+
+    const metrics = this.svc.computeScorecard(this.carriers(), quotesInRange, deliveriesInRange);
+    return type === 'ALL' ? metrics : metrics.filter(x => x.truckType === type);
   });
 
-  // Quotes/Deliveries filtered by carrier selection (null = all carriers)
-  // feeds charts to react to overview selection
+  // Global date filter (applies to all charts)
+  readonly dateFrom = signal<Date | null>(null);  // inclusive (UTC day)
+  readonly dateTo   = signal<Date | null>(null);  // inclusive (UTC day)
+
+  setDatePreset(preset: 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM') {
+    if (preset === 'ALL' || preset === 'CUSTOM') {
+      if (preset === 'ALL') { this.dateFrom.set(null); this.dateTo.set(null); }
+      return;
+    }
+    const now = new Date();
+    const to = this.utcDay(now);
+    let from = to;
+    if (preset === 'TODAY') from = to;
+    if (preset === '7D')    from = this.addUtcDays(to, -6);  // last 7 days inclusive
+    if (preset === '30D')   from = this.addUtcDays(to, -29); // last 30 days inclusive
+    this.dateFrom.set(from);
+    this.dateTo.set(to);
+  }
+  setDateRange(from: Date | null, to: Date | null) {
+    this.dateFrom.set(from ? this.utcDay(from) : null);
+    this.dateTo.set(to ? this.utcDay(to) : null);
+  }
+
+  // Quotes/Deliveries filtered by carrier selection AND date range
   readonly filteredQuotes = computed(() => {
     const id = this.selectedCarrierId();
+    const from = this.dateFrom();
+    const to = this.dateTo();
     const q = this.quotes();
-    return id == null ? q : q.filter(x => x.carrier === id);
+    return q.filter(x => {
+      if (id != null && x.carrier !== id) return false;
+      return this.inRange(x.quoteDate, from, to);
+    });
   });
+
   readonly filteredDeliveries = computed(() => {
     const id = this.selectedCarrierId();
+    const from = this.dateFrom();
+    const to = this.dateTo();
     const d = this.deliveries();
-    return id == null ? d : d.filter(x => x.carrier === id);
+    return d.filter(x => {
+      if (id != null && x.carrier !== id) return false;
+      // Use delivery date for service/shipments views
+      return this.inRange(x.delivery, from, to);
+    });
   });
 
   // Chart-ready series (Google Charts expects 2D Array with header row: [header..., ...rows])
@@ -136,59 +178,49 @@ export class ScorecardStore {
     return data;
   });
 
-  // 3) Shipments series (bar/column chart):
-  // If a carrier is selected: show shipments per ISO week; else: shipments per carrier
+  // 3) Shipments series (overview now respects date filter)
   readonly shipmentsSeries = computed(() => {
     const id = this.selectedCarrierId();
     if (id == null) {
-      //Overview mode: shipments per carrier
-      const data: (string | number)[][] = [];
-      for (const m of this.scorecard()) {
-        data.push([m.carrierId, m.service.shipments]);
+      // Overview: shipments per carrier from date-filtered deliveries
+      const byCarrier = new Map<number, number>();
+      for (const r of this.filteredDeliveries()) {
+        byCarrier.set(r.carrier, (byCarrier.get(r.carrier) ?? 0) + 1);
       }
-      return data;
+      const keys = Array.from(byCarrier.keys()).sort((a, b) => a - b);
+      return keys.map(k => [k, byCarrier.get(k)!]) as (string | number)[][];
     } else {
-      // Carrier mode: shipments per week for selected carrier
+      // Carrier mode: shipments per ISO week (date filtered already)
       const rows = this.filteredDeliveries();
       const byWeek = new Map<string, number>();
       for (const r of rows) {
         const wk = this.weekKey(r.delivery);
         byWeek.set(wk, (byWeek.get(wk) ?? 0) + 1);
       }
-      const data: ( Date| number)[][] = [];
       const keys = Array.from(byWeek.keys()).sort();
-      for (const k of keys) data.push([new Date(k), byWeek.get(k)!]);
-      return data;
+      return keys.map(k => [new Date(k), byWeek.get(k)!]) as (Date | number)[][];
     }
   });
 
-  // 4) Weight series (bar/column chart):
-  // If a carrier is selected: total weight per day from quotes; else: total weight per carrier
+  // 4) Weight series (overview now uses filtered quotes)
   readonly weightSeries = computed(() => {
     const id = this.selectedCarrierId();
-
     if (id == null) {
-      // Overview: total weight per carrier (from QUOTESvsACTUAL.csv)
       const byCarrier = new Map<number, number>();
-      for (const q of this.quotes()) {
+      for (const q of this.filteredQuotes()) {
         byCarrier.set(q.carrier, (byCarrier.get(q.carrier) ?? 0) + (Number.isFinite(q.weight) ? q.weight : 0));
       }
-      const data: (number | string)[][] = [];
       const keys = Array.from(byCarrier.keys()).sort((a, b) => a - b);
-      for (const k of keys) data.push([k, Math.round(byCarrier.get(k)!)]);
-      return data;
+      return keys.map(k => [k, Math.round(byCarrier.get(k)!)]) as (number | string)[][];
     } else {
-      // Carrier selected: total weight per day (quote date)
       const rows = this.filteredQuotes();
       const byDay = new Map<string, number>();
       for (const r of rows) {
         const day = this.dayKey(r.quoteDate);
         byDay.set(day, (byDay.get(day) ?? 0) + (Number.isFinite(r.weight) ? r.weight : 0));
       }
-      const data: (Date | number)[][] = [];
       const keys = Array.from(byDay.keys()).sort();
-      for (const k of keys) data.push([new Date(k), Math.round(byDay.get(k)!)]);
-      return data;
+      return keys.map(k => [new Date(k), Math.round(byDay.get(k)!)]) as (Date | number)[][];
     }
   });
 
@@ -214,7 +246,6 @@ export class ScorecardStore {
           this.deliveries.set(deliveries);
           const metrics = this.svc.computeScorecard(carriers, quotes, deliveries);
           this.scorecard.set(metrics);
-          console.log('Scorecard ready:', metrics.length, metrics.slice(0, 5));
         },
         error: (err) => this.error.set(err?.message ?? 'Failed to load CSVs')
       });
@@ -223,6 +254,17 @@ export class ScorecardStore {
  selectCarrier(id: number) { this.selectedCarrierId.set(id); }
  clearSelection() { this.selectedCarrierId.set(null); }
  setType(type: 'ALL' | 'LTL' | 'TL') { this.selectedType.set(type); }
+
+ // Helpers to compare inclusive UTC day ranges
+ private utcDay(d: Date) { return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); }
+ private addUtcDays(d: Date, n: number) { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return this.utcDay(x); }
+ private inRange(d: Date, from: Date | null, to: Date | null) {
+   if (!from && !to) return true;
+   const day = this.utcDay(d).getTime();
+   const lo = from ? this.utcDay(from).getTime() : -Infinity;
+   const hi = to ? this.utcDay(to).getTime() : +Infinity;
+   return day >= lo && day <= hi;
+ }
 
  // Helpers to get day/week keys from Date objects
  private dayKey(d: Date) {

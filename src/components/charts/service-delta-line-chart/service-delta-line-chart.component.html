@@ -3,12 +3,16 @@
       ? 'Service Delta (Expected vs Actual) for All Carriers'
       : 'Service Delta (Expected vs Actual) for ' + selectedCarrierName() }}
 </h3>
+
+<div class="series-toggles">
+  <label><input type="checkbox" [checked]="showExpected()" (change)="showExpected.set($any($event.target).checked)"> Expected</label>
+  <label><input type="checkbox" [checked]="showActual()" (change)="showActual.set($any($event.target).checked)"> Actual</label>
+  <label><input type="checkbox" [checked]="showDeltaDays()" (change)="showDeltaDays.set($any($event.target).checked)"> Delta</label>
+</div>
+
 <google-chart
   [type]="chartType"
   [columns]="columns"
-  [data]="data()"
+  [data]="viewData()"
   [options]="options">
 </google-chart>
-<p class="note">
-  Shows daily totals: Expected, Actual, and Delta days. Select a Delta point to see the average delta in the tooltip.
-</p>
