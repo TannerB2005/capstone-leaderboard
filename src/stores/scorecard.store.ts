@@ -25,10 +25,18 @@ export class ScorecardStore {
   readonly selectedType = signal<'ALL' | 'LTL' | 'TL'>('ALL');
 
   // Derived lists with LTL/TL/ALL selection for overview
+  // Now recomputed from date-filtered rows so the overview reflects the timeline.
   readonly filteredScorecard = computed(() => {
     const type = this.selectedType();
-    const list = this.scorecard();
-    return type === 'ALL' ? list : list.filter(x => x.truckType === type);
+
+    // Date-only filtering (ignore carrier selection so overview always shows all carriers)
+    const from = this.dateFrom();
+    const to = this.dateTo();
+    const quotesInRange = this.quotes().filter(q => this.inRange(q.quoteDate, from, to));
+    const deliveriesInRange = this.deliveries().filter(d => this.inRange(d.delivery, from, to));
+
+    const metrics = this.svc.computeScorecard(this.carriers(), quotesInRange, deliveriesInRange);
+    return type === 'ALL' ? metrics : metrics.filter(x => x.truckType === type);
   });
 
   // Global date filter (applies to all charts)
