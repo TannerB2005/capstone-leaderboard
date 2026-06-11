@@ -1,59 +1,119 @@
-# AlanwireCapstone
+# Alan Wire Carrier Scorecard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
+A freight carrier performance dashboard
+created for Alan Wire
+that ingests shipment data and surfaces comparative metrics (cost accuracy and service reliability), across all carriers in a single view.
 
-## Development server
+**[Live Demo](https://mdcurt.github.io/alan-wire-carrier-scorecard/)**
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## What it does
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Logistics teams quote shipments with carriers and later receive the actual invoice. Delivery windows are promised and either met or missed. This tool answers two questions for every carrier:
 
-## Code scaffolding
+- **Cost accuracy** — How closely do actual charges match quoted prices? Who over-charges, and by how much?
+- **Service reliability** — How often do shipments arrive on time? Are delays systematic or occasional?
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Carriers are ranked by a composite score combining both dimensions so the best and worst performers surface immediately.
 
-```bash
-ng generate component component-name
-```
+## Features
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- **Overview table** — sortable, searchable, paginated carrier leaderboard with rank score, over-charge rate, avg cost delta, shipment count, and avg transit delta
+- **Cost delta chart** — daily quote vs. actual charges with delta trend line
+- **Service delta chart** — daily expected vs. actual transit days
+- **Shipments chart** — volume per carrier (overview) or per week (carrier drill-down)
+- **Filters** — truck type (LTL / TL), date presets (Today / 7D / 30D / All), custom date range, and per-carrier drill-down
 
-```bash
-ng generate --help
-```
+## Tech stack
 
-## Building
+| Layer | Technology |
+|---|---|
+| Framework | Angular 19 (standalone components, signals) |
+| Language | TypeScript 5.7 (strict mode) |
+| Charts | angular-google-charts |
+| CSV parsing | PapaParse |
+| Tests | Karma + Jasmine |
+| CI/CD | GitHub Actions → GitHub Pages |
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Getting started
 
 ```bash
-ng test
+# Install dependencies
+npm install
+
+# Start the dev server
+npm start
 ```
 
-## Running end-to-end tests
+Open **http://localhost:4200** in your browser. The app hot-reloads on file save.
 
-For end-to-end (e2e) testing, run:
+## Running tests
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+33 tests covering the metrics engine (`ScorecardService`), CSV parsing (`CsvService`), and reactive state (`ScorecardStore`).
 
-## Additional Resources
+## Building for production
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+ng build --configuration production
+```
+
+Output is written to `dist/alanwire-capstone/browser/`.
+
+## Deployment
+
+The `master` branch auto-deploys to GitHub Pages via the included [GitHub Actions workflow](.github/workflows/deploy.yml). Every push to `master` triggers a production build and publishes to:
+
+```
+https://mdcurt.github.io/alan-wire-carrier-scorecard/
+```
+
+To deploy manually:
+
+```bash
+ng build --configuration production --base-href /alan-wire-carrier-scorecard/
+npx angular-cli-ghpages --dir=dist/alanwire-capstone/browser
+```
+
+## Project structure
+
+```
+src/
+├── app/                  # Root component and app config
+├── components/
+│   ├── dashboard/        # Layout shell
+│   ├── overview-panel/   # Carrier leaderboard table
+│   └── charts/           # Cost delta, service delta, shipments charts
+├── models/               # TypeScript interfaces (CSV rows, scorecard metrics)
+├── services/
+│   ├── csvparser.service # HTTP fetch + PapaParse CSV parsing
+│   └── scorecard.service # Metrics computation (pure function)
+├── stores/
+│   └── scorecard.store   # Centralized reactive state (Angular signals)
+└── data/raw/             # Sample CSV files (carriers, quotes, deliveries)
+```
+
+## Data format
+
+The app reads three CSV files from `src/data/raw/`:
+
+**Carriers.csv** — carrier lookup
+```
+TrnspCode, CarrierName, TruckType
+```
+
+**QUOTESvsACTUAL.csv** — quoted vs. invoiced amounts
+```
+Quote Date, Carrier, Weight, Quote, Amount
+```
+
+**deliveries.csv** — transit time records
+```
+carrier, pickup, delivery, expected_delivery
+```
+
+To use your own data, replace these files and run `npm start`.
