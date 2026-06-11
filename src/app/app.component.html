@@ -2,6 +2,19 @@
   <header><img src="footer-logo.svg" alt="Logo" /></header>
   <header class="lb-header">
     <h1>Carrier Scorecard</h1>
-  <dashboard/>
+  </header>
+
+  @if (store.loading()) {
+    <div class="data-status loading">Loading data…</div>
+  } @else if (store.error()) {
+    <div class="data-status error">
+      <span>{{ store.error() }}</span>
+      <button (click)="store.loadAll()">Retry</button>
+    </div>
+  } @else {
+    <dashboard/>
+  }
+
   <footer class="lb-footer">Mock data for layout purposes. Replace with API integration.</footer>
   <footer><img src="footer-logo.svg" alt="Logo" /></footer>
+</div>
