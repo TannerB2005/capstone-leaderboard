@@ -21,7 +21,7 @@ export class CsvService {
           TruckType: String(r.TruckType ?? '').trim() as 'LTL' | 'TL'
         }));
       }),
-      catchError((err: unknown) => throwError(() => new Error(`Failed to load carriers: ${err instanceof Error ? err.message : String(err)}`)))
+      catchError((err: unknown) => throwError(() => new Error(`Failed to load carriers: ${this.errMsg(err)}`)))
     );
   }
 
@@ -37,7 +37,7 @@ export class CsvService {
           amount: this.num(r['Amount'])
         }));
       }),
-      catchError((err: unknown) => throwError(() => new Error(`Failed to load quotes: ${err instanceof Error ? err.message : String(err)}`)))
+      catchError((err: unknown) => throwError(() => new Error(`Failed to load quotes: ${this.errMsg(err)}`)))
     );
   }
 
@@ -52,8 +52,15 @@ export class CsvService {
           expected_delivery: this.date(r['expected_delivery'])
         }));
       }),
-      catchError((err: unknown) => throwError(() => new Error(`Failed to load deliveries: ${err instanceof Error ? err.message : String(err)}`)))
+      catchError((err: unknown) => throwError(() => new Error(`Failed to load deliveries: ${this.errMsg(err)}`)))
     );
+  }
+
+  private errMsg(err: unknown): string {
+    if (typeof err === 'object' && err !== null && 'message' in err) {
+      return String((err as { message: unknown }).message);
+    }
+    return String(err);
   }
 
   private num(v: any): number {
