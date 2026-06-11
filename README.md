@@ -25,6 +25,8 @@ Carriers are ranked by a composite score combining both dimensions so the best a
 - **Shipments chart** — volume per carrier (overview) or per week (carrier drill-down)
 - **Filters** — truck type (LTL / TL), date presets (Today / 7D / 30D / All), custom date range, and per-carrier drill-down
 
+![Carrier Overview — leaderboard table showing carrier rankings, over-charge rate, cost delta, and shipment counts](screenshots/carrier-overview.png)
+
 ## Tech stack
 
 | Layer | Technology |
