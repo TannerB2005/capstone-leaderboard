@@ -257,7 +257,7 @@ export class ScorecardStore {
 
  // Helpers to compare inclusive UTC day ranges
  private utcDay(d: Date) { return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); }
- private addUtcDays(d: Date, n: number) { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return this.utcDay(x); }
+ private addUtcDays(d: Date, n: number) { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return x; }
  private inRange(d: Date, from: Date | null, to: Date | null) {
    if (!from && !to) return true;
    const day = this.utcDay(d).getTime();
